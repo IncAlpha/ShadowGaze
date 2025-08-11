@@ -1,15 +1,35 @@
-using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
+using ShadowGaze.Data.Models.Database;
 
 namespace ShadowGaze.Data.Services;
 
-public sealed class DatabaseContext : DbContext
+public sealed class DatabaseContext(DbContextOptions<DatabaseContext> options) : DbContext(options)
 {
-    protected override void OnConfiguring(DbContextOptionsBuilder options) => options.UseSqlite("Data Source=bb.db");
-
-    public override void Dispose()
+    public DbSet<Customer> Customers => Set<Customer>();
+    public DbSet<Xray> Xrays => Set<Xray>();
+    public DbSet<Endpoint> Endpoints => Set<Endpoint>();
+    
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        SqliteConnection.ClearAllPools();
-        base.Dispose();
+        ConfigureEndpoints(modelBuilder);
+        ConfigureCustomers(modelBuilder);
+    }
+
+    private void ConfigureEndpoints(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<Endpoint>()
+            .HasOne(e => e.Xray)
+            .WithMany()
+            .HasForeignKey(x => x.XrayId)
+            .OnDelete(DeleteBehavior.Cascade);
+    }
+
+    private void ConfigureCustomers(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<Customer>()
+            .HasOne(c => c.Endpoint)
+            .WithOne()
+            .HasForeignKey<Customer>(x => x.EndpointId)
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }

@@ -7,7 +7,7 @@ public abstract class BaseModelRepository<TModel> : IDisposable
     where TModel : BaseDatabaseModel
 {
     protected abstract DbSet<TModel> Table { get; }
-    protected DatabaseContext DatabaseContext { get; private set; } = new();
+    protected DatabaseContext DatabaseContext { get; private set; } /*=new()*/  //todo Dirty hack for build
 
     private bool _disposeContext = true;
 
