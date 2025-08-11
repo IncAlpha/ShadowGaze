@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BigBroPublicBot.Core", "Big
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BigBroPublicBot", "BigBroPublicBot\BigBroPublicBot.csproj", "{49833C66-DD57-4308-9B90-8149FDE70BB3}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BigBroPublicBot.Data", "BigBroPublicBot.Data\BigBroPublicBot.Data.csproj", "{612E3A32-6441-498D-8614-85538258AE36}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -24,5 +26,9 @@ Global
 		{49833C66-DD57-4308-9B90-8149FDE70BB3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{49833C66-DD57-4308-9B90-8149FDE70BB3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{49833C66-DD57-4308-9B90-8149FDE70BB3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{612E3A32-6441-498D-8614-85538258AE36}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{612E3A32-6441-498D-8614-85538258AE36}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{612E3A32-6441-498D-8614-85538258AE36}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{612E3A32-6441-498D-8614-85538258AE36}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

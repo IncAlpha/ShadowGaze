@@ -2,31 +2,28 @@
 
     <PropertyGroup>
         <OutputType>Exe</OutputType>
-        <TargetFramework>net7.0</TargetFramework>
+        <TargetFramework>net8.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
-        <Nullable>enable</Nullable>
+        <Nullable>disable</Nullable>
+        <Version>0.0.1.1</Version>
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\BigBroPublicBot.Core\BigBroPublicBot.Core.csproj" />
+      <PackageReference Include="NLog" Version="5.2.8" />
+      <PackageReference Include="NLog.Extensions.Logging" Version="5.3.8" />
     </ItemGroup>
 
     <ItemGroup>
-      <None Update="Properties\launchSettings.json">
-        <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-        <CopyToPublishDirectory>Never</CopyToPublishDirectory>
-        <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-      </None>
-      <None Update="Properties\serviceDependencies.json">
-        <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-        <CopyToPublishDirectory>Never</CopyToPublishDirectory>
-        <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-      </None>
-      <None Update="Properties\serviceDependencies.local.json">
-        <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-        <CopyToPublishDirectory>Never</CopyToPublishDirectory>
-        <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-      </None>
+        <ProjectReference Include="..\BigBroPublicBot.Core\BigBroPublicBot.Core.csproj"/>
+    </ItemGroup>
+
+    <ItemGroup>
+      <Content Include="nlog.config">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Content>
+      <Content Include="secret.json">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Content>
     </ItemGroup>
 
 </Project>
