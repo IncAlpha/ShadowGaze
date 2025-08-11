@@ -6,25 +6,19 @@ using Telegram.BotAPI.GettingUpdates;
 
 namespace ShadowGaze.Core.Models;
 
-public sealed class PublicBotProperties : IBotProperties
+public sealed class PublicBotProperties
 {
-    IBotCommandHelper IBotProperties.CommandHelper => _botCommandHelper;
-
-    public BotClient Api { get; }
+    public TelegramBotClient Api { get; }
     public User User { get; }
-
-    private readonly BotCommandHelper _botCommandHelper;
 
     public PublicBotProperties(IConfiguration configuration)
     {
         var secret = configuration.GetSection("secret");
         var botToken = secret["token"];
 
-        Api = new BotClient(botToken);
+        Api = new TelegramBotClient(new TelegramBotClientOptions(botToken!));
 
         User = Api.GetMe();
         Api.DeleteWebhook();
-
-        _botCommandHelper = new BotCommandHelper(this);
     }
 }

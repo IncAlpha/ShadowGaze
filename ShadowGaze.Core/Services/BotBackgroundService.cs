@@ -13,10 +13,10 @@ public class BotBackgroundService : BackgroundService
     private readonly ILogger _logger;
     private readonly IServiceProvider _serviceProvider;
     private readonly IVersionProvider _versionProvider;
-    private readonly BotClient _api;
+    private readonly ITelegramBotClient _api;
 
     public BotBackgroundService(ILogger<BotBackgroundService> logger,
-        IBotProperties botProperties,
+        PublicBotProperties botProperties,
         IServiceProvider serviceProvider,
         IVersionProvider versionProvider)
     {
@@ -29,22 +29,26 @@ public class BotBackgroundService : BackgroundService
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         _logger.LogInformation($"Запуск бота [{_versionProvider.FileVersionInfo.FileVersion}]");
-
-        var updates = await _api.GetUpdatesAsync(cancellationToken: stoppingToken).ConfigureAwait(false);
+        var updates = (await _api
+                .GetUpdatesAsync(cancellationToken: stoppingToken)
+                .ConfigureAwait(false))
+            .ToArray();
         while (!stoppingToken.IsCancellationRequested)
         {
-            if (updates.Any())
+            if (updates.Length != 0)
             {
                 await Parallel.ForEachAsync(updates, stoppingToken,
                     async (update, token) => await ProcessUpdate(update, token)
                 );
 
-                updates = await _api.GetUpdatesAsync(updates[^1].UpdateId + 1, cancellationToken: stoppingToken)
-                    .ConfigureAwait(false);
+                updates = (await _api.GetUpdatesAsync(updates[^1].UpdateId + 1, cancellationToken: stoppingToken)
+                        .ConfigureAwait(false))
+                    .ToArray();
             }
             else
             {
-                updates = await _api.GetUpdatesAsync(cancellationToken: stoppingToken).ConfigureAwait(false);
+                updates = (await _api.GetUpdatesAsync(cancellationToken: stoppingToken).ConfigureAwait(false))
+                    .ToArray();
             }
         }
     }

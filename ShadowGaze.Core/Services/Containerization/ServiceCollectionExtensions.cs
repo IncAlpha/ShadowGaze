@@ -2,7 +2,6 @@ using Microsoft.Extensions.DependencyInjection;
 using ShadowGaze.Core.Models;
 using ShadowGaze.Core.Services.UpdateProcessors;
 using ShadowGaze.Core.Services.UpdateProcessors.Messages;
-using Telegram.BotAPI;
 
 namespace ShadowGaze.Core.Services.Containerization;
 
@@ -13,9 +12,8 @@ public static class ServiceCollectionExtensions
         return services
             .AddHostedService<BotBackgroundService>()
             .AddSingleton<IVersionProvider, VersionProvider>()
-            .AddSingleton<IBotProperties, PublicBotProperties>()
+            .AddSingleton<PublicBotProperties>()
             .AddSingleton<SessionContextProvider>()
-            .AddSingleton(provider => provider.GetRequiredService<IBotProperties>().Api)
             .AddScoped<GeneralUpdateProcessor>()
             .AddHttp()
             .AddUpdateProcessors();

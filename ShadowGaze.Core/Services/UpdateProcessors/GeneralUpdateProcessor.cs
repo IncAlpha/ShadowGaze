@@ -1,4 +1,6 @@
 using Microsoft.Extensions.Logging;
+using ShadowGaze.Data.Models.TelegramApi;
+using Telegram.BotAPI.Extensions;
 using Telegram.BotAPI.GettingUpdates;
 
 namespace ShadowGaze.Core.Services.UpdateProcessors;
@@ -26,13 +28,14 @@ public class GeneralUpdateProcessor
 
         foreach (var processor in _updateProcessors)
         {
+            var updateType = UpdateType.FromString(update.GetUpdateType());
             if (processor.Filter is not null &&
-                !processor.Filter.Invoke(update.Type, message, sessionContext))
+                !processor.Filter.Invoke(updateType, update, sessionContext))
             {
                 continue;
             }
 
-            await processor.Process(update.Message);
+            await processor.Process(update);
         }
     }
 }

@@ -1,16 +1,15 @@
-using System.Text.Json;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using ShadowGaze.Core.Models;
-using Telegram.BotAPI;
-using Telegram.BotAPI.AvailableTypes;
+using Telegram.BotAPI.GettingUpdates;
+using UpdateTypes = ShadowGaze.Data.Models.TelegramApi.UpdateTypes;
 
 namespace ShadowGaze.Core.Services.UpdateProcessors.Messages;
 
 public class BaseMessageProcessor : BaseUpdateProcessor
 {
-    public override Func<UpdateType, Message, SessionContext, bool> Filter => (type, message, context) =>
-        type is UpdateType.Message && message.Text == "login";
+    public override Func<UpdateTypes, Update, SessionContext, bool> Filter => (type, update, context) =>
+        type is UpdateTypes.Message && update.Message?.Text == "login";
 
     private readonly ILogger<BaseMessageProcessor> _logger;
     private readonly HttpClient _httpClient;
@@ -24,7 +23,7 @@ public class BaseMessageProcessor : BaseUpdateProcessor
         _secretConfigurationSection = configuration.GetSection("secret");
     }
 
-    public override async Task Process(Message message)
+    public override async Task Process(Update update)
     {
         var body = new List<KeyValuePair<string, string>>
         {
