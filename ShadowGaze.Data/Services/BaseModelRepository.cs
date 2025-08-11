@@ -1,7 +1,7 @@
-using BigBroPublicBot.Data.Models;
 using Microsoft.EntityFrameworkCore;
+using ShadowGaze.Data.Models;
 
-namespace BigBroPublicBot.Data.Services;
+namespace ShadowGaze.Data.Services;
 
 public abstract class BaseModelRepository<TModel> : IDisposable
     where TModel : BaseDatabaseModel

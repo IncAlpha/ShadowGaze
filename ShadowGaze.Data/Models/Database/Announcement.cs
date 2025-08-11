@@ -1,4 +1,4 @@
-namespace BigBroPublicBot.Data.Models.Database;
+namespace ShadowGaze.Data.Models.Database;
 
 public class Announcement
 {

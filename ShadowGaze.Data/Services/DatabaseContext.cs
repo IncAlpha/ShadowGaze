@@ -1,8 +1,7 @@
-using BigBroPublicBot.Data.Models.Database;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 
-namespace BigBroPublicBot.Data.Services;
+namespace ShadowGaze.Data.Services;
 
 public sealed class DatabaseContext : DbContext
 {

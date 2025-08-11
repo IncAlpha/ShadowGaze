@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace BigBroPublicBot.Data.Models;
+namespace ShadowGaze.Data.Models;
 
 public abstract class BaseDatabaseModel
 {
