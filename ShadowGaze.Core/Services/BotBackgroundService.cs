@@ -1,12 +1,12 @@
-using BigBroPublicBot.Core.Models;
-using BigBroPublicBot.Core.Services.MessageProcessors;
+using ShadowGaze.Core.Models;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using ShadowGaze.Core.Services.MessageProcessors;
 using Telegram.BotAPI;
 using Telegram.BotAPI.GettingUpdates;
 
-namespace BigBroPublicBot.Core.Services;
+namespace ShadowGaze.Core.Services;
 
 public class BotBackgroundService : BackgroundService
 {

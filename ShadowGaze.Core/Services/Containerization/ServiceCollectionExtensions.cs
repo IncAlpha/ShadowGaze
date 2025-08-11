@@ -1,9 +1,9 @@
-using BigBroPublicBot.Core.Models;
-using BigBroPublicBot.Core.Services.MessageProcessors;
 using Microsoft.Extensions.DependencyInjection;
+using ShadowGaze.Core.Models;
+using ShadowGaze.Core.Services.MessageProcessors;
 using Telegram.BotAPI;
 
-namespace BigBroPublicBot.Core.Services.Containerization;
+namespace ShadowGaze.Core.Services.Containerization;
 
 public static class ServiceCollectionExtensions
 {

@@ -4,7 +4,7 @@ using Telegram.BotAPI.AvailableMethods;
 using Telegram.BotAPI.AvailableTypes;
 using Telegram.BotAPI.GettingUpdates;
 
-namespace BigBroPublicBot.Core.Models;
+namespace ShadowGaze.Core.Models;
 
 public sealed class PublicBotProperties : IBotProperties
 {

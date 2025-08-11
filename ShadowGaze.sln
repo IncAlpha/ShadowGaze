@@ -3,11 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BigBroPublicBot.Core", "BigBroPublicBot.Core\BigBroPublicBot.Core.csproj", "{7E749FB0-D903-4F24-94DC-4156133809F8}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ShadowGaze.Core", "ShadowGaze.Core\ShadowGaze.Core.csproj", "{7E749FB0-D903-4F24-94DC-4156133809F8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BigBroPublicBot", "BigBroPublicBot\BigBroPublicBot.csproj", "{49833C66-DD57-4308-9B90-8149FDE70BB3}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ShadowGaze", "ShadowGaze\ShadowGaze.csproj", "{49833C66-DD57-4308-9B90-8149FDE70BB3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BigBroPublicBot.Data", "BigBroPublicBot.Data\BigBroPublicBot.Data.csproj", "{612E3A32-6441-498D-8614-85538258AE36}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ShadowGaze.Data", "ShadowGaze.Data\ShadowGaze.Data.csproj", "{612E3A32-6441-498D-8614-85538258AE36}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

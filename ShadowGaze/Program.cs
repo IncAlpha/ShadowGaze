@@ -1,4 +1,4 @@
-﻿using BigBroPublicBot.Core.Services.Containerization;
+﻿using ShadowGaze.Core.Services.Containerization;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;

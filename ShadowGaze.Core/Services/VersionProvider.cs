@@ -1,7 +1,7 @@
 using System.Diagnostics;
 using System.Reflection;
 
-namespace BigBroPublicBot.Core.Services;
+namespace ShadowGaze.Core.Services;
 
 public class VersionProvider : IVersionProvider
 {

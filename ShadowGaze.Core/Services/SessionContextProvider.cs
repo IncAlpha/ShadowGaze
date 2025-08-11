@@ -1,7 +1,7 @@
 using System.Collections.Concurrent;
-using BigBroPublicBot.Core.Models;
+using ShadowGaze.Core.Models;
 
-namespace BigBroPublicBot.Core.Services;
+namespace ShadowGaze.Core.Services;
 
 public class SessionContextProvider
 {

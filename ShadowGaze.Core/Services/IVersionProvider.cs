@@ -1,6 +1,6 @@
 using System.Diagnostics;
 
-namespace BigBroPublicBot.Core.Services;
+namespace ShadowGaze.Core.Services;
 
 public interface IVersionProvider
 {

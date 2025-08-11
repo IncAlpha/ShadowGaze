@@ -1,7 +1,7 @@
 using Microsoft.Extensions.Logging;
 using Telegram.BotAPI.GettingUpdates;
 
-namespace BigBroPublicBot.Core.Services.MessageProcessors;
+namespace ShadowGaze.Core.Services.MessageProcessors;
 
 public class GeneralUpdateProcessor
 {

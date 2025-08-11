@@ -1,8 +1,8 @@
-using BigBroPublicBot.Core.Models;
+using ShadowGaze.Core.Models;
 using Telegram.BotAPI;
 using Telegram.BotAPI.AvailableTypes;
 
-namespace BigBroPublicBot.Core.Services.MessageProcessors;
+namespace ShadowGaze.Core.Services.MessageProcessors;
 
 public abstract class BaseMessageProcessor
 {
