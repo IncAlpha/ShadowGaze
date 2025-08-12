@@ -12,7 +12,7 @@ using ShadowGaze.Data.Services.Database;
 namespace ShadowGaze.Data.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    [Migration("20250811222136_Initial")]
+    [Migration("20250812084252_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -95,16 +95,16 @@ namespace ShadowGaze.Data.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("Address")
+                    b.Property<string>("Host")
                         .HasColumnType("text")
-                        .HasColumnName("address");
+                        .HasColumnName("host");
 
                     b.Property<string>("Password")
                         .HasColumnType("text")
                         .HasColumnName("password");
 
-                    b.Property<string>("Port")
-                        .HasColumnType("text")
+                    b.Property<int>("Port")
+                        .HasColumnType("integer")
                         .HasColumnName("port");
 
                     b.Property<string>("Username")

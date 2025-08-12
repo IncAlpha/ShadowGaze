@@ -1,0 +1,4 @@
+﻿1) Go to ShadowGaze\ShadowGaze
+2) open terminal
+3) dotnet tool install --global dotnet-ef
+4) dotnet ef migrations add Initial --project ..\ShadowGaze.Data

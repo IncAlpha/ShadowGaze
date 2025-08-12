@@ -92,16 +92,16 @@ namespace ShadowGaze.Data.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("Address")
+                    b.Property<string>("Host")
                         .HasColumnType("text")
-                        .HasColumnName("address");
+                        .HasColumnName("host");
 
                     b.Property<string>("Password")
                         .HasColumnType("text")
                         .HasColumnName("password");
 
-                    b.Property<string>("Port")
-                        .HasColumnType("text")
+                    b.Property<int>("Port")
+                        .HasColumnType("integer")
                         .HasColumnName("port");
 
                     b.Property<string>("Username")

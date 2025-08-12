@@ -1,6 +1,7 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using ShadowGaze.Core.Models;
+using ShadowGaze.Data.Services.Database;
 using Telegram.BotAPI.GettingUpdates;
 using UpdateTypes = ShadowGaze.Data.Models.TelegramApi.UpdateTypes;
 
@@ -14,27 +15,41 @@ public class BaseMessageProcessor : BaseUpdateProcessor
     private readonly ILogger<BaseMessageProcessor> _logger;
     private readonly HttpClient _httpClient;
     private readonly IConfigurationSection _secretConfigurationSection;
+    private readonly XrayRepository _xrayRepository;
 
-    public BaseMessageProcessor(ILogger<BaseMessageProcessor> logger,
-        HttpClient httpClient, IConfiguration configuration)
+    public BaseMessageProcessor(
+        ILogger<BaseMessageProcessor> logger,
+        HttpClient httpClient, 
+        IConfiguration configuration,
+        XrayRepository xrayRepository)
     {
         _logger = logger;
         _httpClient = httpClient;
         _secretConfigurationSection = configuration.GetSection("secret");
+        _xrayRepository = xrayRepository;
     }
 
     public override async Task Process(Update update)
     {
+        var xray = await _xrayRepository.GetByIdAsync(1);
+        
         var body = new List<KeyValuePair<string, string>>
         {
-            new("username", _secretConfigurationSection["3xui_login"]),
-            new("password", _secretConfigurationSection["3xui_password"])
+            new("username", xray.Username),
+            new("password", xray.Password)
+        };
+        var uriBuilder = new UriBuilder
+        {
+            Scheme = Uri.UriSchemeHttps,
+            Host = xray.Host,
+            Port = xray.Port,
+            Path = "alphaproxypanel/login"
         };
         
         var request = new HttpRequestMessage
         {
             Method = HttpMethod.Post,
-            RequestUri = new Uri("https://alpha.bigbro.group/alphaproxypanel/login"),
+            RequestUri = uriBuilder.Uri,
             Content = new FormUrlEncodedContent(body)
         };
         

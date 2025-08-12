@@ -18,8 +18,8 @@ namespace ShadowGaze.Data.Migrations
                 {
                     id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    address = table.Column<string>(type: "text", nullable: true),
-                    port = table.Column<string>(type: "text", nullable: true),
+                    host = table.Column<string>(type: "text", nullable: true),
+                    port = table.Column<int>(type: "integer", nullable: false),
                     username = table.Column<string>(type: "text", nullable: true),
                     password = table.Column<string>(type: "text", nullable: true)
                 },

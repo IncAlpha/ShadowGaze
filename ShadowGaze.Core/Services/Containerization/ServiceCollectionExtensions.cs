@@ -19,7 +19,8 @@ public static class ServiceCollectionExtensions
             .AddSingleton<PublicBotProperties>()
             .AddSingleton<SessionContextProvider>()
             .AddScoped<GeneralUpdateProcessor>()
-            .AddNpgsql(context)
+            .AddDatabase(context)
+            .AddRepositories()
             .AddHttp()
             .AddUpdateProcessors();
     }
@@ -36,12 +37,20 @@ public static class ServiceCollectionExtensions
             .AddScoped<HttpClient>();
     }
 
-    private static IServiceCollection AddNpgsql(this IServiceCollection services, HostBuilderContext context)
+    private static IServiceCollection AddDatabase(this IServiceCollection services, HostBuilderContext context)
     {
         return services.AddDbContext<DatabaseContext>(opt =>
         {
             opt.UseNpgsql(context.Configuration.GetConnectionString("Default"));
             opt.UseSnakeCaseNamingConvention();
         });
+    }
+
+    private static IServiceCollection AddRepositories(this IServiceCollection services)
+    {
+        services.AddScoped<CustomersRepository>();
+        services.AddScoped<EndpointsRepository>();
+        services.AddScoped<XrayRepository>();
+        return services;
     }
 }

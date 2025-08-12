@@ -3,31 +3,12 @@ using ShadowGaze.Data.Models.Database;
 
 namespace ShadowGaze.Data.Services.Database;
 
-public abstract class BaseModelRepository<TModel> : IDisposable
+public abstract class BaseModelRepository<TModel>(DatabaseContext context)
     where TModel : BaseDatabaseModel
 {
+    protected DatabaseContext DatabaseContext { get; } = context;
     protected abstract DbSet<TModel> Table { get; }
-
-    protected DatabaseContext DatabaseContext
-    {
-        get => _context ?? new DatabaseContext();
-        private set => _context = value;
-    }
-
-    private DatabaseContext _context;
-
-    private bool _disposeContext = true;
-
-    /// <summary>
-    /// Repository will use specified <see cref="DbContext"/> instance and will not dispose DbContext 
-    /// </summary>
-    /// <param name="context">Database Context instance</param>
-    public void UseContext(DatabaseContext context)
-    {
-        DatabaseContext = context;
-        _disposeContext = false;
-    }
-
+    
     /// <summary>
     /// Update or create a specified model 
     /// </summary>
@@ -70,14 +51,5 @@ public abstract class BaseModelRepository<TModel> : IDisposable
     {
         return Table.AsQueryable();
     }
-
-    public void Dispose()
-    {
-        if (!_disposeContext)
-        {
-            return;
-        }
-
-        DatabaseContext.Dispose();
-    }
 }
+
