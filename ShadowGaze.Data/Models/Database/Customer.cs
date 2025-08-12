@@ -1,10 +1,9 @@
 namespace ShadowGaze.Data.Models.Database;
 
-public class Customer
+public class Customer : BaseDatabaseModel
 {
-    public int Id { get; set; }
     public string TelegramName { get; set; } = string.Empty;
     public double Balance { get; set; }
     public int EndpointId { get; set; }
-    public Endpoint? Endpoint { get; set; }
+    public Endpoint Endpoint { get; set; }
 }

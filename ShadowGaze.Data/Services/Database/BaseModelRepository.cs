@@ -1,16 +1,22 @@
 using Microsoft.EntityFrameworkCore;
-using ShadowGaze.Data.Models;
+using ShadowGaze.Data.Models.Database;
 
-namespace ShadowGaze.Data.Services;
+namespace ShadowGaze.Data.Services.Database;
 
 public abstract class BaseModelRepository<TModel> : IDisposable
     where TModel : BaseDatabaseModel
 {
     protected abstract DbSet<TModel> Table { get; }
-    protected DatabaseContext DatabaseContext { get; private set; } /*=new()*/  //todo Dirty hack for build
+
+    protected DatabaseContext DatabaseContext
+    {
+        get => _context ?? new DatabaseContext();
+        private set => _context = value;
+    }
+
+    private DatabaseContext _context;
 
     private bool _disposeContext = true;
-
 
     /// <summary>
     /// Repository will use specified <see cref="DbContext"/> instance and will not dispose DbContext 
@@ -23,7 +29,7 @@ public abstract class BaseModelRepository<TModel> : IDisposable
     }
 
     /// <summary>
-    /// Update or create specified model 
+    /// Update or create a specified model 
     /// </summary>
     /// <param name="model">Model to save</param>
     /// <returns>Saved model with all generated fields lke Id, CreatedAt, etc.</returns>
@@ -33,7 +39,7 @@ public abstract class BaseModelRepository<TModel> : IDisposable
         DatabaseContext.SaveChanges();
         return model;
     }
-    
+
     /// <summary>
     /// Update or create specified model 
     /// </summary>
@@ -46,12 +52,12 @@ public abstract class BaseModelRepository<TModel> : IDisposable
         return model;
     }
 
-    public virtual TModel GetById(Guid id)
+    public virtual TModel GetById(int id)
     {
         return Table.FirstOrDefault(model => model.Id == id);
     }
 
-    public virtual Task<TModel> GetByIdAsync(Guid id)
+    public virtual Task<TModel> GetByIdAsync(int id)
     {
         return Table.FirstOrDefaultAsync(model => model.Id == id);
     }

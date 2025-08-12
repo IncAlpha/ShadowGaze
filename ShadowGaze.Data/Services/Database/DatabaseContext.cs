@@ -1,10 +1,18 @@
 using Microsoft.EntityFrameworkCore;
 using ShadowGaze.Data.Models.Database;
 
-namespace ShadowGaze.Data.Services;
+namespace ShadowGaze.Data.Services.Database;
 
-public sealed class DatabaseContext(DbContextOptions<DatabaseContext> options) : DbContext(options)
+public sealed class DatabaseContext : DbContext
 {
+    public DatabaseContext()
+    {
+    }
+    
+    public DatabaseContext(DbContextOptions<DatabaseContext> options) : base(options)
+    {
+    }
+
     public DbSet<Customer> Customers => Set<Customer>();
     public DbSet<Xray> Xrays => Set<Xray>();
     public DbSet<Endpoint> Endpoints => Set<Endpoint>();

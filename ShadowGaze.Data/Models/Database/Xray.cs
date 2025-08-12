@@ -1,8 +1,7 @@
 namespace ShadowGaze.Data.Models.Database;
 
-public class Xray
+public class Xray : BaseDatabaseModel
 {
-    public int Id { get; set; }
     public string Address { get; set; } = string.Empty;
     public string Port { get; set; } = string.Empty;
     public string Username { get; set; } = string.Empty;
