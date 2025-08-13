@@ -34,7 +34,6 @@ public class GeneralUpdateProcessor
             {
                 continue;
             }
-
             await processor.Process(update);
         }
     }

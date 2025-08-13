@@ -6,4 +6,23 @@ namespace ShadowGaze.Data.Services.Database;
 public class CustomersRepository(DatabaseContext context) : BaseModelRepository<Customer>(context)
 {
     protected override DbSet<Customer> Table => DatabaseContext.Customers;
+
+    public async Task<Customer> GetOrCreateAsync(long id, string username)
+    {
+        var customer = await DatabaseContext.Customers.FirstOrDefaultAsync(c => c.TelegramId == id);
+        if (customer == null)
+        {
+            customer = new Customer
+            {
+                Id = 0,
+                TelegramId = id,
+                TelegramName = username,
+                Balance = 0,
+                EndpointId = null
+            };
+            DatabaseContext.Customers.Add(customer);
+            DatabaseContext.SaveChanges();
+        }
+        return customer;
+    }
 }

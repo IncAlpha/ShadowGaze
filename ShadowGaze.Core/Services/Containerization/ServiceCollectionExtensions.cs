@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using ShadowGaze.Core.Models;
 using ShadowGaze.Core.Services.UpdateProcessors;
+using ShadowGaze.Core.Services.UpdateProcessors.CallbackQuery;
 using ShadowGaze.Core.Services.UpdateProcessors.Messages;
 using ShadowGaze.Data.Services.Database;
 
@@ -28,7 +29,8 @@ public static class ServiceCollectionExtensions
     private static IServiceCollection AddUpdateProcessors(this IServiceCollection services)
     {
         return services
-            .AddScoped<BaseUpdateProcessor, BaseMessageProcessor>();
+            .AddScoped<BaseUpdateProcessor, CommandStartMessageProcessor>()
+            .AddScoped<BaseUpdateProcessor, GetLinkCallbackQueryProcessor>();
     }
 
     private static IServiceCollection AddHttp(this IServiceCollection services)
