@@ -20,8 +20,8 @@ public class CustomersRepository(DatabaseContext context) : BaseModelRepository<
                 Balance = 0,
                 EndpointId = null
             };
-            DatabaseContext.Customers.Add(customer);
-            DatabaseContext.SaveChanges();
+            await DatabaseContext.Customers.AddAsync(customer);
+            await DatabaseContext.SaveChangesAsync();
         }
         return customer;
     }

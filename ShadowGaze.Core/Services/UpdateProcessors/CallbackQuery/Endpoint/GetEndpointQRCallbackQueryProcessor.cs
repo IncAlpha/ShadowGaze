@@ -5,7 +5,7 @@ using Telegram.BotAPI.AvailableTypes;
 using Telegram.BotAPI.GettingUpdates;
 using UpdateTypes = ShadowGaze.Data.Models.TelegramApi.UpdateTypes;
 
-namespace ShadowGaze.Core.Services.UpdateProcessors.CallbackQuery;
+namespace ShadowGaze.Core.Services.UpdateProcessors.CallbackQuery.Endpoint;
 
 public class GetEndpointQrCallbackQueryProcessor(
     PublicBotProperties botProperties,
@@ -13,7 +13,7 @@ public class GetEndpointQrCallbackQueryProcessor(
 {
 
     public override Func<UpdateTypes, Update, SessionContext, bool> Filter => (type, update, context) =>
-        type is UpdateTypes.CallbackQuery && update.CallbackQuery.Data.StartsWith("get_endpoint;text");
+        type is UpdateTypes.CallbackQuery && (update.CallbackQuery?.Data?.StartsWith("get_endpoint;qrcode") ?? false);
     public override async Task Process(Update update)
     {
         await Api.AnswerCallbackQueryAsync(new AnswerCallbackQueryArgs(update.CallbackQuery.Id));

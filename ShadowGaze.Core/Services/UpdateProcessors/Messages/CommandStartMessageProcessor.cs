@@ -29,7 +29,11 @@ public class CommandStartMessageProcessor(
     {
         var builder = new InlineKeyboardBuilder();
         builder.AppendCallbackData("Получить ссылку", "main;get_links");
+        builder.AppendCallbackData("Выбрать подписку", "main;subscriptions");
+        builder.AppendRow();
         builder.AppendCallbackData("Мой баланс", "main;get_account");
+        builder.AppendRow();
+        builder.AppendCallbackData("Инструкции", "main;instructions");
         return new InlineKeyboardMarkup(builder); ;
     }
 }

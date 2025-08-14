@@ -5,6 +5,10 @@ using Microsoft.Extensions.Hosting;
 using ShadowGaze.Core.Models;
 using ShadowGaze.Core.Services.UpdateProcessors;
 using ShadowGaze.Core.Services.UpdateProcessors.CallbackQuery;
+using ShadowGaze.Core.Services.UpdateProcessors.CallbackQuery.Account;
+using ShadowGaze.Core.Services.UpdateProcessors.CallbackQuery.Endpoint;
+using ShadowGaze.Core.Services.UpdateProcessors.CallbackQuery.Instruction;
+using ShadowGaze.Core.Services.UpdateProcessors.CallbackQuery.Subscription;
 using ShadowGaze.Core.Services.UpdateProcessors.Messages;
 using ShadowGaze.Data.Services.Database;
 
@@ -32,7 +36,12 @@ public static class ServiceCollectionExtensions
             .AddScoped<BaseUpdateProcessor, CommandStartMessageProcessor>()
             .AddScoped<BaseUpdateProcessor, GetLinkCallbackQueryProcessor>()
             .AddScoped<BaseUpdateProcessor, GetEndpointTextCallbackQueryProcessor>()
-            .AddScoped<BaseUpdateProcessor, GetEndpointQrCallbackQueryProcessor>();
+            .AddScoped<BaseUpdateProcessor, GetEndpointQrCallbackQueryProcessor>()
+            .AddScoped<BaseUpdateProcessor, SubscriptionsCallbackQueryProcessor>()
+            .AddScoped<BaseUpdateProcessor, SelectSubscriptionsCallbackQueryProcessor>()
+            .AddScoped<BaseUpdateProcessor, AccountCallbackQueryProcessor>()
+            .AddScoped<BaseUpdateProcessor, AccountTopUpCallbackQueryProcessor>()
+            .AddScoped<BaseUpdateProcessor, InstructionCallbackQueryProcessor>();
     }
 
     private static IServiceCollection AddHttp(this IServiceCollection services)

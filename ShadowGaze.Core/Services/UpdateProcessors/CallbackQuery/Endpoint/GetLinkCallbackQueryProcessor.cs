@@ -7,9 +7,11 @@ using Telegram.BotAPI.GettingUpdates;
 using Telegram.BotAPI.UpdatingMessages;
 using UpdateTypes = ShadowGaze.Data.Models.TelegramApi.UpdateTypes;
 
-namespace ShadowGaze.Core.Services.UpdateProcessors.CallbackQuery;
+namespace ShadowGaze.Core.Services.UpdateProcessors.CallbackQuery.Endpoint;
 
-public class GetLinkCallbackQueryProcessor(PublicBotProperties botProperties, CustomersRepository customersRepository): BaseCallbackQueryProcessor(botProperties)
+public class GetLinkCallbackQueryProcessor(
+    PublicBotProperties botProperties,
+    CustomersRepository customersRepository) : BaseCallbackQueryProcessor(botProperties)
 {
     public override Func<UpdateTypes, Update, SessionContext, bool> Filter => (type, update, context) =>
         type is UpdateTypes.CallbackQuery && update.CallbackQuery?.Data == "main;get_links";
@@ -39,7 +41,7 @@ public class GetLinkCallbackQueryProcessor(PublicBotProperties botProperties, Cu
     {
         var builder = new InlineKeyboardBuilder();
         builder.AppendCallbackData("Текстовая ссылка", $"get_endpoint;text;{endpointId}");
-        builder.AppendCallbackData("QR code", $"get_endpoint;qrcode{endpointId}");
+        builder.AppendCallbackData("QR code", $"get_endpoint;qrcode;{endpointId}");
         await Api.EditMessageTextAsync<Message>(
             new EditMessageTextArgs("Выберите удобный способ")
             {
