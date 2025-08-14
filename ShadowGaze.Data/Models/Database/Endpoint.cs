@@ -6,4 +6,6 @@ public class Endpoint : BaseDatabaseModel
     public Xray Xray { get; set; }
     public int InboundId { get; set; }
     public Guid ClientId { get; set; }
+    public string ConnectionString { get; set; }
+    public byte[] QRCode { get; set; }
 }

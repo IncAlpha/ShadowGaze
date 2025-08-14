@@ -37,9 +37,20 @@ public class BotBackgroundService : BackgroundService
         {
             if (updates.Length != 0)
             {
-                await Parallel.ForEachAsync(updates, stoppingToken,
-                    async (update, token) => await ProcessUpdate(update, token)
-                );
+                try // todo 
+                    // If an error occurs while processing the callback,
+                    // the telegram api can send the callback again and throw an exception when trying to process it
+                    // Use webhook
+                {
+                    await Parallel.ForEachAsync(updates, stoppingToken,
+                        async (update, token) => await ProcessUpdate(update, token)
+                    );
+                }
+                catch (BotRequestException e)
+                {
+                    _logger.LogError(e.Message);
+                }
+                
 
                 updates = (await _api.GetUpdatesAsync(updates[^1].UpdateId + 1, cancellationToken: stoppingToken)
                         .ConfigureAwait(false))

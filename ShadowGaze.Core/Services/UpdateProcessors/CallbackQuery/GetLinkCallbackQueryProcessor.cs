@@ -27,7 +27,7 @@ public class GetLinkCallbackQueryProcessor(PublicBotProperties botProperties, Cu
         var customer = await customersRepository.GetOrCreateAsync(user.Id, user.Username);
         if (customer.EndpointId != null)
         {
-            await EditMessageGetEndpoint(query);
+            await EditMessageGetEndpoint(query, (int)customer.EndpointId);
         }
         else
         {
@@ -35,11 +35,11 @@ public class GetLinkCallbackQueryProcessor(PublicBotProperties botProperties, Cu
         }
     }
 
-    private async Task EditMessageGetEndpoint(Telegram.BotAPI.AvailableTypes.CallbackQuery query)
+    private async Task EditMessageGetEndpoint(Telegram.BotAPI.AvailableTypes.CallbackQuery query, int endpointId)
     {
         var builder = new InlineKeyboardBuilder();
-        builder.AppendCallbackData("Текстовая ссылка", "get_endpoint;text");
-        builder.AppendCallbackData("QR code", "get_endpoint;qrcode");
+        builder.AppendCallbackData("Текстовая ссылка", $"get_endpoint;text;{endpointId}");
+        builder.AppendCallbackData("QR code", $"get_endpoint;qrcode{endpointId}");
         await Api.EditMessageTextAsync<Message>(
             new EditMessageTextArgs("Выберите удобный способ")
             {
@@ -52,6 +52,8 @@ public class GetLinkCallbackQueryProcessor(PublicBotProperties botProperties, Cu
     private async Task EditMessageCreateEndpoint(Telegram.BotAPI.AvailableTypes.CallbackQuery query)
     {
         await Api.EditMessageTextAsync(query.Message.Chat.Id, query.Message.MessageId,
-            "Вам доступен пробный период: Ссылка для подключения будет доступна в течении 5 минут");
+            "Вам доступен пробный период: Ссылка для подключения появится в боте в течении часа");
+        await Api.SendMessageAsync(-4929973929,
+            $"Username: {query.Message.Chat.Username} ID: {query.Message.Chat.Id} хочет прокси");
     }
 }

@@ -30,7 +30,9 @@ public static class ServiceCollectionExtensions
     {
         return services
             .AddScoped<BaseUpdateProcessor, CommandStartMessageProcessor>()
-            .AddScoped<BaseUpdateProcessor, GetLinkCallbackQueryProcessor>();
+            .AddScoped<BaseUpdateProcessor, GetLinkCallbackQueryProcessor>()
+            .AddScoped<BaseUpdateProcessor, GetEndpointTextCallbackQueryProcessor>()
+            .AddScoped<BaseUpdateProcessor, GetEndpointQrCallbackQueryProcessor>();
     }
 
     private static IServiceCollection AddHttp(this IServiceCollection services)
