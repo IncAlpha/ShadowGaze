@@ -1,0 +1,1 @@
+global using static ShadowGaze.Core.Services.Extensions.KeyboardBuilderExtensions;

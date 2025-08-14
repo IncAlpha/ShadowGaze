@@ -1,8 +1,10 @@
+using Microsoft.EntityFrameworkCore;
 using ShadowGaze.Core.Models;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using ShadowGaze.Core.Services.UpdateProcessors;
+using ShadowGaze.Data.Services.Database;
 using Telegram.BotAPI;
 using Telegram.BotAPI.GettingUpdates;
 
@@ -13,21 +15,25 @@ public class BotBackgroundService : BackgroundService
     private readonly ILogger _logger;
     private readonly IServiceProvider _serviceProvider;
     private readonly IVersionProvider _versionProvider;
+    private readonly DatabaseContext _databaseContext;
     private readonly ITelegramBotClient _api;
 
     public BotBackgroundService(ILogger<BotBackgroundService> logger,
         PublicBotProperties botProperties,
         IServiceProvider serviceProvider,
-        IVersionProvider versionProvider)
+        IVersionProvider versionProvider,
+        DatabaseContext databaseContext)
     {
         _logger = logger;
         _api = botProperties.Api;
         _serviceProvider = serviceProvider;
         _versionProvider = versionProvider;
+        _databaseContext = databaseContext;
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
+        await _databaseContext.Database.MigrateAsync(cancellationToken: stoppingToken);
         _logger.LogInformation($"Запуск бота [{_versionProvider.FileVersionInfo.FileVersion}]");
         var updates = (await _api
                 .GetUpdatesAsync(cancellationToken: stoppingToken)
@@ -50,7 +56,7 @@ public class BotBackgroundService : BackgroundService
                 {
                     _logger.LogError(e.Message);
                 }
-                
+
 
                 updates = (await _api.GetUpdatesAsync(updates[^1].UpdateId + 1, cancellationToken: stoppingToken)
                         .ConfigureAwait(false))

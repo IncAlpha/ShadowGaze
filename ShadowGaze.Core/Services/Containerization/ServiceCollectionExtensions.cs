@@ -4,11 +4,10 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using ShadowGaze.Core.Models;
 using ShadowGaze.Core.Services.UpdateProcessors;
-using ShadowGaze.Core.Services.UpdateProcessors.CallbackQuery;
-using ShadowGaze.Core.Services.UpdateProcessors.CallbackQuery.Account;
-using ShadowGaze.Core.Services.UpdateProcessors.CallbackQuery.Endpoint;
-using ShadowGaze.Core.Services.UpdateProcessors.CallbackQuery.Instruction;
-using ShadowGaze.Core.Services.UpdateProcessors.CallbackQuery.Subscription;
+using ShadowGaze.Core.Services.UpdateProcessors.CallbackQueries.Accounts;
+using ShadowGaze.Core.Services.UpdateProcessors.CallbackQueries.Endpoints;
+using ShadowGaze.Core.Services.UpdateProcessors.CallbackQueries.Instructions;
+using ShadowGaze.Core.Services.UpdateProcessors.CallbackQueries.Subscriptions;
 using ShadowGaze.Core.Services.UpdateProcessors.Messages;
 using ShadowGaze.Data.Services.Database;
 
@@ -33,10 +32,11 @@ public static class ServiceCollectionExtensions
     private static IServiceCollection AddUpdateProcessors(this IServiceCollection services)
     {
         return services
-            .AddScoped<BaseUpdateProcessor, CommandStartMessageProcessor>()
-            .AddScoped<BaseUpdateProcessor, GetLinkCallbackQueryProcessor>()
-            .AddScoped<BaseUpdateProcessor, GetEndpointTextCallbackQueryProcessor>()
-            .AddScoped<BaseUpdateProcessor, GetEndpointQrCallbackQueryProcessor>()
+            .AddScoped<BaseUpdateProcessor, MainMenuCallbackProcessor>()
+            .AddScoped<BaseUpdateProcessor, MainMenuMessageProcessor>()
+            .AddScoped<BaseUpdateProcessor, GetEndpointProcessor>()
+            // .AddScoped<BaseUpdateProcessor, GetEndpointTextCallbackQueryProcessor>()
+            // .AddScoped<BaseUpdateProcessor, GetEndpointQrCallbackQueryProcessor>()
             .AddScoped<BaseUpdateProcessor, SubscriptionsCallbackQueryProcessor>()
             .AddScoped<BaseUpdateProcessor, SelectSubscriptionsCallbackQueryProcessor>()
             .AddScoped<BaseUpdateProcessor, AccountCallbackQueryProcessor>()
