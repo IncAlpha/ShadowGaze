@@ -1,7 +1,9 @@
+using System.Net;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
 using ShadowGaze.Core.Models;
 using ShadowGaze.Core.Services.UpdateProcessors;
 using ShadowGaze.Core.Services.UpdateProcessors.CallbackQueries.Accounts;
@@ -9,6 +11,7 @@ using ShadowGaze.Core.Services.UpdateProcessors.CallbackQueries.Endpoints;
 using ShadowGaze.Core.Services.UpdateProcessors.CallbackQueries.Instructions;
 using ShadowGaze.Core.Services.UpdateProcessors.CallbackQueries.Subscriptions;
 using ShadowGaze.Core.Services.UpdateProcessors.Messages;
+using ShadowGaze.Core.Services.XUI;
 using ShadowGaze.Data.Services.Database;
 
 namespace ShadowGaze.Core.Services.Containerization;
@@ -23,6 +26,7 @@ public static class ServiceCollectionExtensions
             .AddSingleton<PublicBotProperties>()
             .AddSingleton<SessionContextProvider>()
             .AddScoped<GeneralUpdateProcessor>()
+            .AddSingleton<XuiService>()
             .AddDatabase(context)
             .AddRepositories()
             .AddHttp()
@@ -35,8 +39,6 @@ public static class ServiceCollectionExtensions
             .AddScoped<BaseUpdateProcessor, MainMenuCallbackProcessor>()
             .AddScoped<BaseUpdateProcessor, MainMenuMessageProcessor>()
             .AddScoped<BaseUpdateProcessor, GetEndpointProcessor>()
-            // .AddScoped<BaseUpdateProcessor, GetEndpointTextCallbackQueryProcessor>()
-            // .AddScoped<BaseUpdateProcessor, GetEndpointQrCallbackQueryProcessor>()
             .AddScoped<BaseUpdateProcessor, SubscriptionsCallbackQueryProcessor>()
             .AddScoped<BaseUpdateProcessor, SelectSubscriptionsCallbackQueryProcessor>()
             .AddScoped<BaseUpdateProcessor, AccountCallbackQueryProcessor>()
@@ -47,12 +49,24 @@ public static class ServiceCollectionExtensions
     private static IServiceCollection AddHttp(this IServiceCollection services)
     {
         return services
-            .AddScoped<HttpClient>();
+            .AddSingleton<CookieContainer>()
+            .AddHttpClient(Options.DefaultName)
+            .ConfigurePrimaryHttpMessageHandler((sp) =>
+            {
+                var cookieContainer = sp.GetRequiredService<CookieContainer>();
+                return new HttpClientHandler
+                {
+                    UseCookies = true,
+                    CookieContainer = cookieContainer,
+                    // UseProxy = true,
+                    // Proxy = new WebProxy("http://localhost:2081")
+                };
+            }).Services;
     }
 
     private static IServiceCollection AddDatabase(this IServiceCollection services, HostBuilderContext context)
     {
-        return services.AddDbContext<DatabaseContext>(opt =>
+        return services.AddDbContextFactory<DatabaseContext>(opt =>
         {
             opt.UseNpgsql(context.Configuration.GetConnectionString("Default"));
             opt.UseSnakeCaseNamingConvention();
