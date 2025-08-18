@@ -5,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using ShadowGaze.Core.Models;
+using ShadowGaze.Core.Models.Congifurations;
 using ShadowGaze.Core.Services.UpdateProcessors;
 using ShadowGaze.Core.Services.UpdateProcessors.CallbackQueries.Accounts;
 using ShadowGaze.Core.Services.UpdateProcessors.CallbackQueries.Endpoints;
@@ -28,6 +29,7 @@ public static class ServiceCollectionExtensions
             .AddScoped<GeneralUpdateProcessor>()
             .AddSingleton<XuiService>()
             .AddDatabase(context)
+            .AddBotOptions(context)
             .AddRepositories()
             .AddHttp()
             .AddUpdateProcessors();
@@ -38,7 +40,7 @@ public static class ServiceCollectionExtensions
         return services
             .AddScoped<BaseUpdateProcessor, MainMenuCallbackProcessor>()
             .AddScoped<BaseUpdateProcessor, MainMenuMessageProcessor>()
-            .AddScoped<BaseUpdateProcessor, GetEndpointProcessor>()
+            .AddScoped<BaseUpdateProcessor, EndpointsProcessor>()
             .AddScoped<BaseUpdateProcessor, SubscriptionsCallbackQueryProcessor>()
             .AddScoped<BaseUpdateProcessor, SelectSubscriptionsCallbackQueryProcessor>()
             .AddScoped<BaseUpdateProcessor, AccountCallbackQueryProcessor>()
@@ -51,9 +53,9 @@ public static class ServiceCollectionExtensions
         return services
             .AddSingleton<CookieContainer>()
             .AddHttpClient(Options.DefaultName)
-            .ConfigurePrimaryHttpMessageHandler((sp) =>
+            .ConfigurePrimaryHttpMessageHandler(provider =>
             {
-                var cookieContainer = sp.GetRequiredService<CookieContainer>();
+                var cookieContainer = provider.GetRequiredService<CookieContainer>();
                 return new HttpClientHandler
                 {
                     UseCookies = true,
@@ -61,7 +63,9 @@ public static class ServiceCollectionExtensions
                     // UseProxy = true,
                     // Proxy = new WebProxy("http://localhost:2081")
                 };
-            }).Services;
+            })
+            .RemoveAllLoggers()
+            .Services;
     }
 
     private static IServiceCollection AddDatabase(this IServiceCollection services, HostBuilderContext context)
@@ -75,9 +79,13 @@ public static class ServiceCollectionExtensions
 
     private static IServiceCollection AddRepositories(this IServiceCollection services)
     {
-        services.AddScoped<CustomersRepository>();
-        services.AddScoped<EndpointsRepository>();
-        services.AddScoped<XrayRepository>();
-        return services;
+        return services.AddScoped<CustomersRepository>()
+            .AddScoped<EndpointsRepository>()
+            .AddScoped<XrayRepository>();
+    }
+
+    private static IServiceCollection AddBotOptions(this IServiceCollection services, HostBuilderContext context)
+    {
+        return services.Configure<XUiOptions>(context.Configuration.GetSection(nameof(XUiOptions)));
     }
 }

@@ -28,13 +28,21 @@ public class GeneralUpdateProcessor
 
         foreach (var processor in _updateProcessors)
         {
-            var updateType = UpdateType.FromString(update.GetUpdateType());
-            if (processor.Filter is not null &&
-                !processor.Filter.Invoke(updateType, update, sessionContext))
+            try
             {
-                continue;
+                var updateType = UpdateType.FromString(update.GetUpdateType());
+                if (processor.Filter is not null &&
+                    !processor.Filter.Invoke(updateType, update, sessionContext))
+                {
+                    continue;
+                }
+
+                await processor.Process(update);
             }
-            await processor.Process(update);
+            catch (Exception exception)
+            {
+                _logger.LogCritical(exception, $"Возникла ошибка при работе {processor.GetType().Name}");
+            }
         }
     }
 }

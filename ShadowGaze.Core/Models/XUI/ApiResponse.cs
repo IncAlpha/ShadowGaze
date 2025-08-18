@@ -7,7 +7,7 @@ public sealed class ApiResponse<T>
     [JsonPropertyName("success")] 
     public bool Success { get; set; }
     [JsonPropertyName("msg")]     
-    public string? Msg { get; set; }
+    public string Message { get; set; }
     [JsonPropertyName("obj")]     
-    public T? Obj { get; set; }
+    public T Object { get; set; }
 }

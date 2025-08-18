@@ -1,5 +1,6 @@
 namespace ShadowGaze.Data.Models.Database;
 
+// TODO: rename to XUiPanel
 public class Xray : BaseDatabaseModel
 {
     public string Host { get; set; } = string.Empty;

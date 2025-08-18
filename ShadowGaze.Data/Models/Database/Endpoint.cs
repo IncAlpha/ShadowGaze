@@ -7,5 +7,4 @@ public class Endpoint : BaseDatabaseModel
     public int InboundId { get; set; }
     public Guid ClientId { get; set; }
     public string ConnectionString { get; set; }
-    public byte[] QRCode { get; set; }
 }
