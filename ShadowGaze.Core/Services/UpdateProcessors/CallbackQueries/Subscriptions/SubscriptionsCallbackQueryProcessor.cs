@@ -25,8 +25,8 @@ public class SubscriptionsCallbackQueryProcessor(PublicBotProperties botProperti
             .AppendCallbackData("1 Месяц - 200₽", $"{CallbackQueriesConstants.Subscriptions};get;1")
             .AppendCallbackData("3 Месяца - 550₽", $"{CallbackQueriesConstants.Subscriptions};get;3")
             .AppendRow()
-            .AppendCallbackData("6 Месяцев - 1050₽", $"{CallbackQueriesConstants.Subscriptions};get;6")
-            .AppendCallbackData("12 Месяцев - 2000₽", $"{CallbackQueriesConstants.Subscriptions};get;12")
+            .AppendCallbackData("6 Месяцев - 1000₽", $"{CallbackQueriesConstants.Subscriptions};get;6")
+            .AppendCallbackData("12 Месяцев - 1900₽", $"{CallbackQueriesConstants.Subscriptions};get;12")
             .AppendRow()
             .AppendCallbackData("Назад", CallbackQueriesConstants.MainMenu)
             .Build();
