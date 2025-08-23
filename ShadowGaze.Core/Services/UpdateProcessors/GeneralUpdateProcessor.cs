@@ -1,32 +1,35 @@
 using Microsoft.Extensions.Logging;
+using ShadowGaze.Core.Services.MIddlewares;
 using ShadowGaze.Data.Models.TelegramApi;
 using Telegram.BotAPI.Extensions;
 using Telegram.BotAPI.GettingUpdates;
 
 namespace ShadowGaze.Core.Services.UpdateProcessors;
 
-public class GeneralUpdateProcessor
+public class GeneralUpdateProcessor(
+    ILogger<GeneralUpdateProcessor> logger,
+    SessionContextProvider sessionContextProvider,
+    IEnumerable<BaseUpdateProcessor> updateProcessors,
+    IEnumerable<IMiddleware> middlewares
+)
 {
-    private readonly ILogger _logger;
-    private readonly SessionContextProvider _sessionContextProvider;
-    private readonly IEnumerable<BaseUpdateProcessor> _updateProcessors;
-
-    public GeneralUpdateProcessor(ILogger<GeneralUpdateProcessor> logger,
-        SessionContextProvider sessionContextProvider,
-        IEnumerable<BaseUpdateProcessor> updateProcessors)
-    {
-        _logger = logger;
-        _sessionContextProvider = sessionContextProvider;
-        _updateProcessors = updateProcessors;
-    }
+    private readonly ILogger _logger = logger;
 
     public async Task Process(Update update, CancellationToken cancellationToken)
     {
         var message = update.Message;
         var sender = message?.From;
-        var sessionContext = sender is not null ? _sessionContextProvider.GetContextForUser(sender.Id) : null;
+        var sessionContext = sender is not null ? sessionContextProvider.GetContextForUser(sender.Id) : null;
 
-        foreach (var processor in _updateProcessors)
+        foreach (var middleware in middlewares)
+        {
+            if (!await middleware.Process(update))
+            {
+                return;
+            }
+        }
+
+        foreach (var processor in updateProcessors)
         {
             try
             {

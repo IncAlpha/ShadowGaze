@@ -6,6 +6,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using ShadowGaze.Core.Models;
 using ShadowGaze.Core.Models.Congifurations;
+using ShadowGaze.Core.Services.MIddlewares;
 using ShadowGaze.Core.Services.UpdateProcessors;
 using ShadowGaze.Core.Services.UpdateProcessors.CallbackQueries.Accounts;
 using ShadowGaze.Core.Services.UpdateProcessors.CallbackQueries.Endpoints;
@@ -14,6 +15,7 @@ using ShadowGaze.Core.Services.UpdateProcessors.CallbackQueries.Subscriptions;
 using ShadowGaze.Core.Services.UpdateProcessors.Messages;
 using ShadowGaze.Core.Services.XUI;
 using ShadowGaze.Data.Services.Database;
+using ShadowGaze.Data.Services.Database.Instructions;
 
 namespace ShadowGaze.Core.Services.Containerization;
 
@@ -32,7 +34,8 @@ public static class ServiceCollectionExtensions
             .AddBotOptions(context)
             .AddRepositories()
             .AddHttp()
-            .AddUpdateProcessors();
+            .AddUpdateProcessors()
+            .AddMiddleware();
     }
 
     private static IServiceCollection AddUpdateProcessors(this IServiceCollection services)
@@ -45,7 +48,14 @@ public static class ServiceCollectionExtensions
             .AddScoped<BaseUpdateProcessor, SelectSubscriptionsCallbackQueryProcessor>()
             .AddScoped<BaseUpdateProcessor, AccountCallbackQueryProcessor>()
             .AddScoped<BaseUpdateProcessor, AccountTopUpCallbackQueryProcessor>()
-            .AddScoped<BaseUpdateProcessor, InstructionCallbackQueryProcessor>();
+            .AddScoped<BaseUpdateProcessor, InstructionsProcessor>()
+            .AddScoped<BaseUpdateProcessor, GetInstructionsProcessor>();
+    }
+
+    private static IServiceCollection AddMiddleware(this IServiceCollection services)
+    {
+        return services
+            .AddScoped<IMiddleware, AdminCommandsMiddleware>();
     }
 
     private static IServiceCollection AddHttp(this IServiceCollection services)
@@ -81,7 +91,8 @@ public static class ServiceCollectionExtensions
     {
         return services.AddScoped<CustomersRepository>()
             .AddScoped<EndpointsRepository>()
-            .AddScoped<XrayRepository>();
+            .AddScoped<XrayRepository>()
+            .AddScoped<PlatformInstructionsRepository>();
     }
 
     private static IServiceCollection AddBotOptions(this IServiceCollection services, HostBuilderContext context)

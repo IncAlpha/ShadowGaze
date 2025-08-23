@@ -1,5 +1,4 @@
 using System.Web;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using ShadowGaze.Core.Models;
@@ -81,7 +80,7 @@ public class EndpointsProcessor(
         xray = await xrayRepository.GetByIdAsync(endpoint.XrayId);
 
         var inbound = await xuiService.GetInbound(xray, _options.InboundId);
-        var connectionString = BuildConnectionString(endpoint, xray, inbound.Object);
+        var connectionString = BuildConnectionString(user, endpoint, xray, inbound.Object);
 
         var qrCodeArgs = GetQrCodeMessageArgs(chatId, connectionString);
         await Api.SendPhotoAsync(qrCodeArgs);
@@ -102,7 +101,7 @@ public class EndpointsProcessor(
             .Build();
     }
 
-    private string BuildConnectionString(Endpoint endpoint, Xray xray, InboundDto inbound)
+    private string BuildConnectionString(User user, Endpoint endpoint, Xray xray, InboundDto inbound)
     {
         var protocol = inbound.Protocol;
         var client = inbound.Settings.Clients.FirstOrDefault(client => client.Id == endpoint.ClientId.ToString())!;
@@ -120,7 +119,7 @@ public class EndpointsProcessor(
         queryParams.Add("spx", inbound.StreamSettings.RealitySettings.Settings.SpiderX);
         queryParams.Add("flow", flow);
 
-        return $"{protocol}://{id}@{host}?{queryParams}";
+        return $"{protocol}://{id}@{host}?{queryParams}#sg-{user.Username}";
     }
 
     private SendPhotoArgs GetQrCodeMessageArgs(long chatId, string qrCodeContent)

@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using ShadowGaze.Data.Models.Database;
+using ShadowGaze.Data.Models.Database.Instructions;
 
 namespace ShadowGaze.Data.Services.Database;
 
@@ -8,6 +9,7 @@ public sealed class DatabaseContext(DbContextOptions<DatabaseContext> options) :
     public DbSet<Customer> Customers => Set<Customer>();
     public DbSet<Xray> Xrays => Set<Xray>();
     public DbSet<Endpoint> Endpoints => Set<Endpoint>();
+    public DbSet<PlatformInstruction> PlatformInstructions => Set<PlatformInstruction>();
     
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
