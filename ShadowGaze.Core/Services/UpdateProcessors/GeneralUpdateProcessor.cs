@@ -1,5 +1,5 @@
 using Microsoft.Extensions.Logging;
-using ShadowGaze.Core.Services.MIddlewares;
+using ShadowGaze.Core.Services.Middlewares;
 using ShadowGaze.Data.Models.TelegramApi;
 using Telegram.BotAPI.Extensions;
 using Telegram.BotAPI.GettingUpdates;

@@ -8,6 +8,7 @@ public class AddClientRequestMessage(Xray xray, int inboundId, Guid guid, string
 {
     public override HttpRequestMessage BuildRequestMessage()
     {
+        var myDateTime = DateTime.Now.AddDays(20);
         UriBuilder.Path += $"/panel/api/inbounds/addClient";
         var client = new ClientDto()
         {
@@ -16,7 +17,7 @@ public class AddClientRequestMessage(Xray xray, int inboundId, Guid guid, string
             Email = email,
             LimitIp = 0,
             TotalGB = 0,
-            ExpiryTime = 0,
+            ExpiryTime = new DateTimeOffset(myDateTime).ToUnixTimeMilliseconds(),
             Enable = true,
             TgId = "",
             SubId = "",

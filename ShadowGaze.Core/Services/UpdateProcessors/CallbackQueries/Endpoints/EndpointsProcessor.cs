@@ -77,11 +77,17 @@ public class EndpointsProcessor(
         }
 
         endpoint = await endpointsRepository.GetByIdAsync(customer.EndpointId.Value);
-        xray = await xrayRepository.GetByIdAsync(endpoint.XrayId);
-
-        var inbound = await xuiService.GetInbound(xray, _options.InboundId);
-        var connectionString = BuildConnectionString(user, endpoint, xray, inbound.Object);
-
+        string connectionString;
+        if (endpoint.ConnectionString is null)
+        {
+            xray = await xrayRepository.GetByIdAsync(endpoint.XrayId);
+            var inbound = await xuiService.GetInbound(xray, _options.InboundId);
+            connectionString = BuildConnectionString(user, endpoint, xray, inbound.Object);
+            endpoint.ConnectionString = connectionString;
+            await endpointsRepository.SaveAsync(endpoint);
+        }
+        connectionString = endpoint.ConnectionString;
+        
         var qrCodeArgs = GetQrCodeMessageArgs(chatId, connectionString);
         await Api.SendPhotoAsync(qrCodeArgs);
         var messageArgs = new SendMessageArgs(chatId, "Следуйте инструкциям по использованию")

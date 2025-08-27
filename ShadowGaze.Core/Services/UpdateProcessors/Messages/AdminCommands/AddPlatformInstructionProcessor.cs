@@ -11,6 +11,7 @@ public class AddPlatformInstructionProcessor(PublicBotProperties botProperties) 
         type is UpdateTypes.Message && update.Message?.Text == AdminCommandsConstants.AddInstruction;
     public override Task Process(Update update)
     {
+        throw new NotImplementedException();
         // TODO: добавить здесь загрузку текста (ParseMode: MarkdownV2 стоит у инструкций) и видео ну и остальных полей
         // видео мы планировали запоминать как ID файла. Удаление и редактирование пока оставь на ручками в БД
     }

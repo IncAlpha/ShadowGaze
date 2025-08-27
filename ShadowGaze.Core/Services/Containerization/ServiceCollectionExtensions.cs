@@ -6,7 +6,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using ShadowGaze.Core.Models;
 using ShadowGaze.Core.Models.Congifurations;
-using ShadowGaze.Core.Services.MIddlewares;
+using ShadowGaze.Core.Services.Middlewares;
 using ShadowGaze.Core.Services.UpdateProcessors;
 using ShadowGaze.Core.Services.UpdateProcessors.CallbackQueries.Accounts;
 using ShadowGaze.Core.Services.UpdateProcessors.CallbackQueries.Endpoints;

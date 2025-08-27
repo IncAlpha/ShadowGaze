@@ -7,4 +7,7 @@ public static class CallbackQueriesConstants
     public const string Subscriptions = "subscriptions";
     public const string Endpoints = "endpoints";
     public const string Accounts = "accounts";
+    
+    public const string AboutAs = "about";
+    public const string Referrals = "referrals";
 }

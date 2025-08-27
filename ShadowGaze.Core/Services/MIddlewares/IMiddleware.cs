@@ -1,7 +1,7 @@
 
 using Telegram.BotAPI.GettingUpdates;
 
-namespace ShadowGaze.Core.Services.MIddlewares;
+namespace ShadowGaze.Core.Services.Middlewares;
 
 public interface IMiddleware
 {

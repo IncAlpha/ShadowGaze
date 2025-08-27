@@ -77,19 +77,35 @@ public class GetInstructionsProcessor(
     {
         var message = query.Message!;
         var chatId = message.Chat.Id;
+        
+        _ = Api.DeleteMessageAsync(chatId, message.MessageId);
+
+        var videoMessageArgs = new SendVideoArgs(chatId, instruction.VideoPath);
+        await Api.SendVideoAsync(videoMessageArgs);
+
         var keyboardBuilder = BuildKeyboard();
         keyboardBuilder
             .AppendRow()
             .AppendCallbackData("Назад", CallbackQueriesConstants.Instructions);
+        var messageText =
+            $"""
+            📲 *Подключение к сервису*  
 
-        var messageArgs = new EditMessageTextArgs(instruction.Description)
+            🔹 *Имя приложения:*  
+            `{instruction.ApplicationName}`  
+
+            🔹 *Ссылка на скачивание:*  
+            [Скачать приложение]({instruction.ApplicationUrl})  
+
+            🔹 *Описание:*  
+            {instruction.Description}  
+            """;
+        var messageArgs = new SendMessageArgs(chatId, messageText)
         {
-            ChatId = chatId,
-            MessageId = message.MessageId,
             ReplyMarkup = keyboardBuilder.Build(),
             ParseMode = "MarkdownV2"
         };
-        await Api.EditMessageTextAsync<Message>(messageArgs);
+        await Api.SendMessageAsync(messageArgs);
     }
 
     private void ProcessMultipleInstruction()

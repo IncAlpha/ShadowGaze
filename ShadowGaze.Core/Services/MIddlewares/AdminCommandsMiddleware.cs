@@ -2,7 +2,7 @@ using Microsoft.Extensions.Configuration;
 using ShadowGaze.Core.Models.Constants;
 using Telegram.BotAPI.GettingUpdates;
 
-namespace ShadowGaze.Core.Services.MIddlewares;
+namespace ShadowGaze.Core.Services.Middlewares;
 
 public class AdminCommandsMiddleware(IConfiguration configuration) : IMiddleware
 {
