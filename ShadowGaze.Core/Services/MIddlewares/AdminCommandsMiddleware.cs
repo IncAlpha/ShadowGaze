@@ -8,9 +8,14 @@ public class AdminCommandsMiddleware(IConfiguration configuration) : IMiddleware
 {
     private readonly string[] _adminCommands =
     [
-        AdminCommandsConstants.AddInstruction
+        AdminCommandsConstants.AddInstruction,
     ];
 
+    /// <summary>
+    /// Обработка процесса до передачи к <see cref="BaseUpdateProcessor"/>'у
+    /// </summary>
+    /// <param name="update"></param>
+    /// <returns></returns>
     public async Task<bool> Process(Update update)
     {
         if (update.Message == null)

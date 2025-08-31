@@ -1,5 +1,7 @@
 using ShadowGaze.Core.Models;
 using ShadowGaze.Core.Models.Constants;
+using ShadowGaze.Core.Models.SessionContexts;
+using ShadowGaze.Core.Services.Extensions;
 using ShadowGaze.Data.Models;
 using Telegram.BotAPI.AvailableMethods;
 using Telegram.BotAPI.AvailableTypes;
@@ -16,34 +18,40 @@ public class InstructionsProcessor(PublicBotProperties botProperties) : BaseUpda
 
     public static readonly Dictionary<Platforms, string> PlatformButtons = new()
     {
-        {Platforms.IOs, "🍎 iOS"},
-        {Platforms.MacOs, "💻 macOS"},
-        {Platforms.Android, "📱 Android"},
-        {Platforms.Windows, "🖥 Windows/Linux"},
+        { Platforms.IOs, "🍎 iOS" },
+        { Platforms.MacOs, "💻 macOS" },
+        { Platforms.Android, "📱 Android" },
+        { Platforms.Windows, "🖥 Windows/Linux" },
     };
 
-    public override async Task Process(Update update)
+    public override async Task Process(Update update, SessionContext sessionContext)
     {
         var query = update.CallbackQuery!;
-        var message = query.Message!;
+        var message = (query.Message as Message)!;
         var chatId = message.Chat.Id;
-        await Api.AnswerCallbackQueryAsync(new AnswerCallbackQueryArgs(update.CallbackQuery!.Id));
+        await Bot.AnswerCallbackQueryAsync(new AnswerCallbackQueryArgs(update.CallbackQuery!.Id));
         var messageArgs = new EditMessageTextArgs("Выберите платформу:")
         {
             ChatId = chatId,
             MessageId = message.MessageId,
             ReplyMarkup = GetKeyboard()
         };
-        await Api.EditMessageTextAsync<Message>(messageArgs);
+
+        if (message.HasMedia())
+        {
+            await Bot.RemoveLastButton(message);
+            await Bot.SendMessageAsync(messageArgs);
+            return;
+        }
+
+        await Bot.EditMessageTextAsync<Message>(messageArgs);
     }
 
     private InlineKeyboardMarkup GetKeyboard()
     {
         var builder = BuildKeyboard();
-        foreach (var keyValuePair in PlatformButtons)
+        foreach (var (platform, button) in PlatformButtons)
         {
-            var platform = keyValuePair.Key;
-            var button = keyValuePair.Value;
             builder
                 .AppendRow()
                 .AppendCallbackData(button, $"{CallbackQueriesConstants.Instructions};get;{platform}");

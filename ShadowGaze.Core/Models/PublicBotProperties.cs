@@ -8,17 +8,15 @@ namespace ShadowGaze.Core.Models;
 
 public sealed class PublicBotProperties
 {
-    public TelegramBotClient Api { get; }
-    public User User { get; }
+    public TelegramBotClient Bot { get; }
 
     public PublicBotProperties(IConfiguration configuration)
     {
         var secret = configuration.GetSection("secret");
         var botToken = secret["token"];
 
-        Api = new TelegramBotClient(new TelegramBotClientOptions(botToken!));
+        Bot = new TelegramBotClient(new TelegramBotClientOptions(botToken!));
 
-        User = Api.GetMe();
-        Api.DeleteWebhook();
+        Bot.DeleteWebhook();
     }
 }

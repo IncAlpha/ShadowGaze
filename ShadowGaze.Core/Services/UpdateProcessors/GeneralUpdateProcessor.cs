@@ -17,8 +17,7 @@ public class GeneralUpdateProcessor(
 
     public async Task Process(Update update, CancellationToken cancellationToken)
     {
-        var message = update.Message;
-        var sender = message?.From;
+        var sender = update.Message?.From ?? update.CallbackQuery?.From;
         var sessionContext = sender is not null ? sessionContextProvider.GetContextForUser(sender.Id) : null;
 
         foreach (var middleware in middlewares)
@@ -40,7 +39,8 @@ public class GeneralUpdateProcessor(
                     continue;
                 }
 
-                await processor.Process(update);
+                await processor.Process(update, sessionContext);
+                break;
             }
             catch (Exception exception)
             {

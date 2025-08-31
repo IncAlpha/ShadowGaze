@@ -4,6 +4,7 @@ using Microsoft.Extensions.Options;
 using ShadowGaze.Core.Models;
 using ShadowGaze.Core.Models.Congifurations;
 using ShadowGaze.Core.Models.Constants;
+using ShadowGaze.Core.Models.SessionContexts;
 using ShadowGaze.Core.Models.XUI;
 using ShadowGaze.Core.Services.Extensions;
 using ShadowGaze.Core.Services.QrCodes;
@@ -33,13 +34,13 @@ public class EndpointsProcessor(
 
     private readonly XUiOptions _options = options.Value;
 
-    public override async Task Process(Update update)
+    public override async Task Process(Update update, SessionContext sessionContext)
     {
         var query = update.CallbackQuery!;
         var message = query.Message!;
         var chatId = message.Chat.Id;
 
-        await Api.AnswerCallbackQueryAsync(new AnswerCallbackQueryArgs(query.Id));
+        await Bot.AnswerCallbackQueryAsync(new AnswerCallbackQueryArgs(query.Id));
 
         var user = update.CallbackQuery?.From;
         if (user == null)
@@ -60,7 +61,7 @@ public class EndpointsProcessor(
             if (clientGuid is null)
             {
                 logger.LogError("Не удалось создать клиента для inbound");
-                await Api.EditMessageTextAsync(chatId, message.MessageId,
+                await Bot.EditMessageTextAsync(chatId, message.MessageId,
                     "Произошла внутренняя ошибка, обратитесь к специалисту технической поддержки");
                 return;
             }
@@ -89,13 +90,13 @@ public class EndpointsProcessor(
         connectionString = endpoint.ConnectionString;
         
         var qrCodeArgs = GetQrCodeMessageArgs(chatId, connectionString);
-        await Api.SendPhotoAsync(qrCodeArgs);
+        await Bot.SendPhotoAsync(qrCodeArgs);
         var messageArgs = new SendMessageArgs(chatId, "Следуйте инструкциям по использованию")
         {
             ChatId = chatId,
             ReplyMarkup = GetKeyboard()
         };
-        await Api.SendMessageAsync(messageArgs);
+        await Bot.SendMessageAsync(messageArgs);
     }
 
     private InlineKeyboardMarkup GetKeyboard()

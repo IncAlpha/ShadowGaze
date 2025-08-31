@@ -12,8 +12,8 @@ using ShadowGaze.Data.Services.Database;
 namespace ShadowGaze.Data.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    [Migration("20250822143734_AddInstructions")]
-    partial class AddInstructions
+    [Migration("20250828131137_AddPlatformInstruction")]
+    partial class AddPlatformInstruction
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -115,13 +115,13 @@ namespace ShadowGaze.Data.Migrations
                         .HasColumnType("text")
                         .HasColumnName("description");
 
-                    b.Property<int>("Platform")
+                    b.Property<string>("FileId")
+                        .HasColumnType("text")
+                        .HasColumnName("file_id");
+
+                    b.Property<int?>("Platform")
                         .HasColumnType("integer")
                         .HasColumnName("platform");
-
-                    b.Property<string>("VideoPath")
-                        .HasColumnType("text")
-                        .HasColumnName("video_path");
 
                     b.HasKey("Id")
                         .HasName("pk_platform_instructions");

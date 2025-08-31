@@ -26,7 +26,7 @@ public class BotBackgroundService : BackgroundService
         )
     {
         _logger = logger;
-        _api = botProperties.Api;
+        _api = botProperties.Bot;
         _serviceProvider = serviceProvider;
         _versionProvider = versionProvider;
         _dbFactory = dbFactory;

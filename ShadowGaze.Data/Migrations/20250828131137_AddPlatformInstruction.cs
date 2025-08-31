@@ -6,7 +6,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace ShadowGaze.Data.Migrations
 {
     /// <inheritdoc />
-    public partial class AddInstructions : Migration
+    public partial class AddPlatformInstruction : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -17,11 +17,11 @@ namespace ShadowGaze.Data.Migrations
                 {
                     id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    platform = table.Column<int>(type: "integer", nullable: false),
+                    platform = table.Column<int>(type: "integer", nullable: true),
                     application_name = table.Column<string>(type: "text", nullable: true),
                     application_url = table.Column<string>(type: "text", nullable: true),
                     description = table.Column<string>(type: "text", nullable: true),
-                    video_path = table.Column<string>(type: "text", nullable: true)
+                    file_id = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
                 {

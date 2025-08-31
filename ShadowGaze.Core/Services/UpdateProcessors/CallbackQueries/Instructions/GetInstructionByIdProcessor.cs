@@ -2,7 +2,6 @@ using Microsoft.Extensions.Logging;
 using ShadowGaze.Core.Models;
 using ShadowGaze.Core.Models.Constants;
 using ShadowGaze.Core.Models.SessionContexts;
-using ShadowGaze.Data.Models;
 using ShadowGaze.Data.Services.Database.Instructions;
 using Telegram.BotAPI.AvailableMethods;
 using Telegram.BotAPI.GettingUpdates;
@@ -10,15 +9,15 @@ using UpdateTypes = ShadowGaze.Data.Models.TelegramApi.UpdateTypes;
 
 namespace ShadowGaze.Core.Services.UpdateProcessors.CallbackQueries.Instructions;
 
-public class GetInstructionsProcessor(
-    ILogger<GetInstructionsProcessor> logger,
+public class GetInstructionByIdProcessor(
+    ILogger<GetInstructionByIdProcessor> logger,
     PublicBotProperties botProperties,
-    PlatformInstructionsRepository platformInstructionsRepository
+    PlatformInstructionsRepository instructionsRepository
 ) : BaseInstructionProcessor(botProperties)
 {
     public override Func<UpdateTypes, Update, SessionContext, bool> Filter => (type, update, _) =>
         type is UpdateTypes.CallbackQuery &&
-        (update.CallbackQuery?.Data?.StartsWith($"{CallbackQueriesConstants.Instructions};get;") ?? false);
+        (update.CallbackQuery?.Data?.StartsWith($"{CallbackQueriesConstants.Instructions};get_by_id;") ?? false);
 
     public override async Task Process(Update update, SessionContext sessionContext)
     {
@@ -26,27 +25,22 @@ public class GetInstructionsProcessor(
         var message = query.Message!;
         var chatId = message.Chat.Id;
 
-        if (!Enum.TryParse<Platforms>(query.Data!.Split(";")[2], out var platform))
+        if (!int.TryParse(query.Data!.Split(";")[2], out var instructionId))
         {
-            logger.LogError($"Пришел неверный тип платформы. Query data: {query.Data}");
+            logger.LogError($"Пришел неверный id инструкции. Query data: {query.Data}");
             return;
         }
 
         await Bot.AnswerCallbackQueryAsync(new AnswerCallbackQueryArgs(query.Id));
 
-        var instructions = await platformInstructionsRepository.GetForPlatformAsync(platform);
+        var instruction = await instructionsRepository.GetByIdAsync(instructionId);
 
-        switch (instructions.Length)
+        if (instruction is null)
         {
-            case 0:
-                await ProcessNoneInstruction(query, platform);
-                break;
-            case 1:
-                await ProcessSingleInstruction(query, instructions[0]);
-                break;
-            case >= 1:
-                await ProcessMultipleInstruction(query, instructions);
-                return;
+            logger.LogError($"Не удалось найти инструкцию с ID: {instructionId}");
+            return;
         }
+        
+        await ProcessSingleInstruction(query, instruction);
     }
 }

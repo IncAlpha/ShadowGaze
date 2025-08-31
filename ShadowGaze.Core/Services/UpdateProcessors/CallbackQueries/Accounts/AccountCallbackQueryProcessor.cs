@@ -1,5 +1,6 @@
 using ShadowGaze.Core.Models;
 using ShadowGaze.Core.Models.Constants;
+using ShadowGaze.Core.Models.SessionContexts;
 using ShadowGaze.Data.Services.Database;
 using Telegram.BotAPI.AvailableMethods;
 using Telegram.BotAPI.AvailableTypes;
@@ -17,10 +18,10 @@ public class AccountCallbackQueryProcessor(
     public override Func<UpdateTypes, Update, SessionContext, bool> Filter => (type, update, _) =>
         type is UpdateTypes.CallbackQuery && update.CallbackQuery?.Data == CallbackQueriesConstants.Accounts;
 
-    public override async Task Process(Update update)
+    public override async Task Process(Update update, SessionContext sessionContext)
     {
         var query = update.CallbackQuery!;
-        await Api.AnswerCallbackQueryAsync(new AnswerCallbackQueryArgs(query.Id));
+        await Bot.AnswerCallbackQueryAsync(new AnswerCallbackQueryArgs(query.Id));
 
         var user = update.CallbackQuery?.From;
         if (user == null)
@@ -35,7 +36,7 @@ public class AccountCallbackQueryProcessor(
             .AppendRow()
             .AppendCallbackData("Назад", CallbackQueriesConstants.MainMenu)
             .Build();
-        await Api.EditMessageTextAsync<Message>(
+        await Bot.EditMessageTextAsync<Message>(
             new EditMessageTextArgs($"Ваш баланс {customer.Balance}")
             {
                 ChatId = query.Message!.Chat.Id,

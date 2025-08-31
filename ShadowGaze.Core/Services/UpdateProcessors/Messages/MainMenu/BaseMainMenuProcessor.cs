@@ -1,27 +1,28 @@
 using ShadowGaze.Core.Models;
 using ShadowGaze.Core.Models.Constants;
+using ShadowGaze.Core.Models.SessionContexts;
 using ShadowGaze.Data.Models.Database;
 using ShadowGaze.Data.Services.Database;
 using Telegram.BotAPI.AvailableTypes;
 using Telegram.BotAPI.GettingUpdates;
 using UpdateTypes = ShadowGaze.Data.Models.TelegramApi.UpdateTypes;
 
-namespace ShadowGaze.Core.Services.UpdateProcessors.Messages;
+namespace ShadowGaze.Core.Services.UpdateProcessors.Messages.MainMenu;
 
 public abstract class BaseMainMenuProcessor(PublicBotProperties botProperties, CustomersRepository customersRepository) : BaseUpdateProcessor(botProperties)
 {
     public abstract override Func<UpdateTypes, Update, SessionContext, bool> Filter { get; }
     
     private Customer _customer;
-    public override async Task Process(Update update)
+    public override async Task Process(Update update, SessionContext sessionContext)
     {
         var userId = GetUserId(update);
         _customer = await customersRepository.GetByTelegramIdWithEndpointAsync(userId);
-        await AnswerProcess(update);
+        await AnswerProcess(update, sessionContext);
     }
     
     protected abstract long GetUserId(Update update);
-    protected abstract Task AnswerProcess(Update update);
+    protected abstract Task AnswerProcess(Update update, SessionContext sessionContext);
     
     protected string GetAnswerText()
     {

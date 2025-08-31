@@ -3,6 +3,7 @@ namespace ShadowGaze.Core.Models.Constants;
 public static class CallbackQueriesConstants
 {
     public const string MainMenu = "main";
+    public const string Cancel = "cancel";
     public const string Instructions = "instructions";
     public const string Subscriptions = "subscriptions";
     public const string Endpoints = "endpoints";

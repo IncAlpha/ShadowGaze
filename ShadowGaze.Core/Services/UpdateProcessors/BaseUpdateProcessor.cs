@@ -1,4 +1,5 @@
 using ShadowGaze.Core.Models;
+using ShadowGaze.Core.Models.SessionContexts;
 using Telegram.BotAPI;
 using Telegram.BotAPI.GettingUpdates;
 using UpdateTypes = ShadowGaze.Data.Models.TelegramApi.UpdateTypes;
@@ -9,7 +10,7 @@ public abstract class BaseUpdateProcessor(PublicBotProperties botProperties)
 {
     public abstract Func<UpdateTypes, Update, SessionContext, bool> Filter { get; }
 
-    public abstract Task Process(Update update);
+    public abstract Task Process(Update update, SessionContext sessionContext);
 
-    protected ITelegramBotClient Api => botProperties.Api;
+    protected ITelegramBotClient Bot => botProperties.Bot;
 }

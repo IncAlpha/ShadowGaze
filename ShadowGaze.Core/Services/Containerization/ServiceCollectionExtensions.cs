@@ -13,6 +13,8 @@ using ShadowGaze.Core.Services.UpdateProcessors.CallbackQueries.Endpoints;
 using ShadowGaze.Core.Services.UpdateProcessors.CallbackQueries.Instructions;
 using ShadowGaze.Core.Services.UpdateProcessors.CallbackQueries.Subscriptions;
 using ShadowGaze.Core.Services.UpdateProcessors.Messages;
+using ShadowGaze.Core.Services.UpdateProcessors.Messages.AdminCommands.AddPlatformInstruction;
+using ShadowGaze.Core.Services.UpdateProcessors.Messages.MainMenu;
 using ShadowGaze.Core.Services.XUI;
 using ShadowGaze.Data.Services.Database;
 using ShadowGaze.Data.Services.Database.Instructions;
@@ -41,16 +43,24 @@ public static class ServiceCollectionExtensions
     private static IServiceCollection AddUpdateProcessors(this IServiceCollection services)
     {
         return services
-            .AddScoped<BaseUpdateProcessor, MainMenuCallbackProcessor>()
-            .AddScoped<BaseUpdateProcessor, MainMenuMessageProcessor>()
-            .AddScoped<BaseUpdateProcessor, EndpointsProcessor>()
-            .AddScoped<BaseUpdateProcessor, SubscriptionsCallbackQueryProcessor>()
-            .AddScoped<BaseUpdateProcessor, SelectSubscriptionsCallbackQueryProcessor>()
-            .AddScoped<BaseUpdateProcessor, AccountCallbackQueryProcessor>()
-            .AddScoped<BaseUpdateProcessor, AccountTopUpCallbackQueryProcessor>()
-            .AddScoped<BaseUpdateProcessor, InstructionsProcessor>()
-            .AddScoped<BaseUpdateProcessor, GetInstructionsProcessor>();
-    }
+                .AddScoped<BaseUpdateProcessor, MainMenuCallbackProcessor>()
+                .AddScoped<BaseUpdateProcessor, MainMenuMessageProcessor>()
+                .AddScoped<BaseUpdateProcessor, EndpointsProcessor>()
+                .AddScoped<BaseUpdateProcessor, SubscriptionsCallbackQueryProcessor>()
+                .AddScoped<BaseUpdateProcessor, SelectSubscriptionsCallbackQueryProcessor>()
+                .AddScoped<BaseUpdateProcessor, AccountCallbackQueryProcessor>()
+                .AddScoped<BaseUpdateProcessor, AccountTopUpCallbackQueryProcessor>()
+
+                // инструкции
+                .AddScoped<BaseUpdateProcessor, InstructionsProcessor>()
+                .AddScoped<BaseUpdateProcessor, GetInstructionsProcessor>()
+                .AddScoped<BaseUpdateProcessor, GetInstructionByIdProcessor>()
+                .AddScoped<BaseUpdateProcessor, AddPlatformInstructionProcessor>()
+                .AddScoped<BaseUpdateProcessor, SetPlatformProcessor>()
+                .AddScoped<BaseUpdateProcessor, SetDescriptionProcessor>()
+                .AddScoped<BaseUpdateProcessor, SetFileProcessor>()
+            ;
+    } 
 
     private static IServiceCollection AddMiddleware(this IServiceCollection services)
     {

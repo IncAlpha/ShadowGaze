@@ -1,5 +1,6 @@
 using ShadowGaze.Core.Models;
 using ShadowGaze.Core.Models.Constants;
+using ShadowGaze.Core.Models.SessionContexts;
 using Telegram.BotAPI.AvailableMethods;
 using Telegram.BotAPI.GettingUpdates;
 using UpdateTypes = ShadowGaze.Data.Models.TelegramApi.UpdateTypes;
@@ -13,11 +14,11 @@ public class SelectSubscriptionsCallbackQueryProcessor(PublicBotProperties botPr
         type is UpdateTypes.CallbackQuery &&
         (update?.CallbackQuery?.Data?.StartsWith($"{CallbackQueriesConstants.Subscriptions};get;") ?? false);
 
-    public override async Task Process(Update update)
+    public override async Task Process(Update update, SessionContext sessionContext)
     {
         var query = update.CallbackQuery!;
-        await Api.AnswerCallbackQueryAsync(new AnswerCallbackQueryArgs(query.Id));
+        await Bot.AnswerCallbackQueryAsync(new AnswerCallbackQueryArgs(query.Id));
         var subType = int.Parse(query.Data!.Split(";")[2]);
-        await Api.SendMessageAsync(query.Message!.Chat.Id, "Выбор подписки скоро будет доступен");
+        await Bot.SendMessageAsync(query.Message!.Chat.Id, "Выбор подписки скоро будет доступен");
     }
 }

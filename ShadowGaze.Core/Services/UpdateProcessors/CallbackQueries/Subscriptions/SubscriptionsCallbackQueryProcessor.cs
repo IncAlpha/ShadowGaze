@@ -1,5 +1,6 @@
 using ShadowGaze.Core.Models;
 using ShadowGaze.Core.Models.Constants;
+using ShadowGaze.Core.Models.SessionContexts;
 using Telegram.BotAPI.AvailableMethods;
 using Telegram.BotAPI.AvailableTypes;
 using Telegram.BotAPI.GettingUpdates;
@@ -14,10 +15,10 @@ public class SubscriptionsCallbackQueryProcessor(PublicBotProperties botProperti
     public override Func<UpdateTypes, Update, SessionContext, bool> Filter => (type, update, context) =>
         type is UpdateTypes.CallbackQuery && update.CallbackQuery?.Data == CallbackQueriesConstants.Subscriptions;
 
-    public override async Task Process(Update update)
+    public override async Task Process(Update update, SessionContext sessionContext)
     {
         var query = update.CallbackQuery;
-        await Api.AnswerCallbackQueryAsync(new AnswerCallbackQueryArgs(query.Id));
+        await Bot.AnswerCallbackQueryAsync(new AnswerCallbackQueryArgs(query.Id));
 
         var keyboard = BuildKeyboard()
             // TODO: переделать на id
@@ -29,7 +30,7 @@ public class SubscriptionsCallbackQueryProcessor(PublicBotProperties botProperti
             .AppendRow()
             .AppendCallbackData("Назад", CallbackQueriesConstants.MainMenu)
             .Build();
-        await Api.EditMessageTextAsync<Message>(
+        await Bot.EditMessageTextAsync<Message>(
             new EditMessageTextArgs("Выберите длительность подписки")
             {
                 ChatId = query.Message.Chat.Id,
