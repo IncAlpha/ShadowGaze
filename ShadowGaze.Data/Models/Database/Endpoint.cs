@@ -9,6 +9,6 @@ public class Endpoint : BaseDatabaseModel
     public int InboundId { get; set; }
     public Guid ClientId { get; set; }
     public string ConnectionString { get; set; }
-    [NotMapped]
     public DateTime ExpiryDate { get; set; }
+    public DateTime CreatedAt { get; set; }
 }

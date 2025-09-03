@@ -24,6 +24,14 @@ public sealed class DatabaseContext(DbContextOptions<DatabaseContext> options) :
             .WithMany()
             .HasForeignKey(x => x.XrayId)
             .OnDelete(DeleteBehavior.Cascade);
+        
+        modelBuilder.Entity<Endpoint>()
+            .Property(e => e.CreatedAt)
+            .HasColumnType("timestamp without time zone");
+        
+        modelBuilder.Entity<Endpoint>()
+            .Property(e => e.ExpiryDate)
+            .HasColumnType("timestamp without time zone");
     }
 
     private void ConfigureCustomers(ModelBuilder modelBuilder)

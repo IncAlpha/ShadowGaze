@@ -26,11 +26,17 @@ public abstract class BaseMainMenuProcessor(PublicBotProperties botProperties, C
     
     protected string GetAnswerText()
     {
-        if (_customer == null || _customer.Endpoint == null)
+        if (ExistUser())
         {
-            return NewUserAnswer();
+            return ExistUserAnswer();
         }
-        return ExistUserAnswer();    
+        return NewUserAnswer();
+    }
+
+    private string ExistUserAnswer()
+    {
+        var endDate = _customer.Endpoint.ExpiryDate;
+        return $"Остаток дней: {(endDate - DateTime.Now).Days}\nДата окончания: {endDate:dd-MMMM-yyyy}";
     }
     
     private string NewUserAnswer()
@@ -38,27 +44,24 @@ public abstract class BaseMainMenuProcessor(PublicBotProperties botProperties, C
         return "ShadowGaze from BigBroTeam";    
     }
 
-    private string ExistUserAnswer()
+    private InlineKeyboardMarkup ExistUserKeyboard()
     {
-        _customer.Endpoint.ExpiryDate = DateTime.Now.Date.AddDays(50); //TODO load from database
-        var plan = "3 мес"; //TODO load from database
-        var endDate = _customer.Endpoint.ExpiryDate;
-        return $"Ваш план: {plan}\nОстаток дней: {(endDate - DateTime.Now).Days}\nДата окончания: {endDate:dd-MMMM-yyyy}";
+        return BuildKeyboard()
+            .AppendCallbackData("Proxy", CallbackQueriesConstants.Endpoints)
+            .AppendCallbackData("Продлить", CallbackQueriesConstants.Subscriptions)
+            .AppendRow()
+            .AppendCallbackData("Связаться с нами", CallbackQueriesConstants.AboutAs)
+            .AppendCallbackData("Реферальная программа", CallbackQueriesConstants.Referrals)
+            .Build();   
     }
 
     protected InlineKeyboardMarkup GetKeyboard()
     {
-        if (_customer == null)
+        if (ExistUser())
         {
-            return NewUserKeyboard();
+            return ExistUserKeyboard();
         }
-        return BuildKeyboard()
-            .AppendCallbackData("Proxy", CallbackQueriesConstants.Endpoints)
-            .AppendCallbackData("Обновить план", CallbackQueriesConstants.Subscriptions)
-            .AppendRow()
-            .AppendCallbackData("Связаться с нами", CallbackQueriesConstants.AboutAs)
-            .AppendCallbackData("Реферальная программа", CallbackQueriesConstants.Referrals)
-            .Build();
+        return NewUserKeyboard();
     }
 
     private InlineKeyboardMarkup NewUserKeyboard()
@@ -66,5 +69,10 @@ public abstract class BaseMainMenuProcessor(PublicBotProperties botProperties, C
         return BuildKeyboard()
             .AppendCallbackData("Proxy", CallbackQueriesConstants.Endpoints)
             .Build();
+    }
+
+    private bool ExistUser()
+    {
+        return !(_customer == null || _customer.Endpoint == null);
     }
 }

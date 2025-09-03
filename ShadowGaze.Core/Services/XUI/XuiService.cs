@@ -16,10 +16,10 @@ public class XuiService(ILogger<XuiService> logger, HttpClient httpClient, Cooki
         return await inboundResponse.Content.ReadFromJsonAsync<ApiResponse<InboundDto>>();
     }
 
-    public async Task<Guid?> AddClient(Xray xray, int inboundId, string username)
+    public async Task<Guid?> AddClient(Xray xray, int inboundId, string username, DateTime expiry)
     {
         var guid = Guid.NewGuid();
-        var createClientRequest = new AddClientRequestMessage(xray, inboundId, guid, username).BuildRequestMessage();
+        var createClientRequest = new AddClientRequestMessage(xray, inboundId, guid, username, expiry).BuildRequestMessage();
         var createClientResponse = await DoRequest(xray, createClientRequest);
         if (createClientResponse is null)
         {

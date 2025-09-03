@@ -4,11 +4,10 @@ using ShadowGaze.Data.Models.Database;
 
 namespace ShadowGaze.Core.Services.XUI.Messages;
 
-public class AddClientRequestMessage(Xray xray, int inboundId, Guid guid, string email) : RequestMessage(xray)
+public class AddClientRequestMessage(Xray xray, int inboundId, Guid guid, string email, DateTime expiry) : RequestMessage(xray)
 {
     public override HttpRequestMessage BuildRequestMessage()
     {
-        var myDateTime = DateTime.Now.AddDays(20);
         UriBuilder.Path += $"/panel/api/inbounds/addClient";
         var client = new ClientDto()
         {
@@ -17,7 +16,7 @@ public class AddClientRequestMessage(Xray xray, int inboundId, Guid guid, string
             Email = email,
             LimitIp = 0,
             TotalGB = 0,
-            ExpiryTime = new DateTimeOffset(myDateTime).ToUnixTimeMilliseconds(),
+            ExpiryTime = new DateTimeOffset(expiry).ToUnixTimeMilliseconds(),
             Enable = true,
             TgId = "",
             SubId = "",
