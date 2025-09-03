@@ -7,6 +7,7 @@ using Microsoft.Extensions.Options;
 using ShadowGaze.Core.Models;
 using ShadowGaze.Core.Models.Congifurations;
 using ShadowGaze.Core.Services.Middlewares;
+using ShadowGaze.Core.Services.Subscriptions;
 using ShadowGaze.Core.Services.UpdateProcessors;
 using ShadowGaze.Core.Services.UpdateProcessors.CallbackQueries.Accounts;
 using ShadowGaze.Core.Services.UpdateProcessors.CallbackQueries.Endpoints;
@@ -15,6 +16,7 @@ using ShadowGaze.Core.Services.UpdateProcessors.CallbackQueries.Subscriptions;
 using ShadowGaze.Core.Services.UpdateProcessors.Messages;
 using ShadowGaze.Core.Services.UpdateProcessors.Messages.AdminCommands.AddPlatformInstruction;
 using ShadowGaze.Core.Services.UpdateProcessors.Messages.MainMenu;
+using ShadowGaze.Core.Services.UpdateProcessors.Payments;
 using ShadowGaze.Core.Services.XUI;
 using ShadowGaze.Data.Services.Database;
 using ShadowGaze.Data.Services.Database.Instructions;
@@ -32,12 +34,12 @@ public static class ServiceCollectionExtensions
             .AddSingleton<SessionContextProvider>()
             .AddScoped<GeneralUpdateProcessor>()
             .AddSingleton<XuiService>()
+            .AddSingleton<SubscriptionMatches>()
             .AddDatabase(context)
             .AddBotOptions(context)
             .AddRepositories()
             .AddHttp()
-            .AddUpdateProcessors()
-            .AddMiddleware();
+            .AddUpdateProcessors();
     }
 
     private static IServiceCollection AddUpdateProcessors(this IServiceCollection services)
@@ -50,6 +52,11 @@ public static class ServiceCollectionExtensions
                 .AddScoped<BaseUpdateProcessor, SelectSubscriptionsCallbackQueryProcessor>()
                 .AddScoped<BaseUpdateProcessor, AccountCallbackQueryProcessor>()
                 .AddScoped<BaseUpdateProcessor, AccountTopUpCallbackQueryProcessor>()
+                
+                // платежи
+                .AddScoped<BaseUpdateProcessor, PreCheckoutQueryProcessor>()
+                .AddScoped<BaseUpdateProcessor, CheckoutMessageProcessor>()
+        
 
                 // инструкции
                 .AddScoped<BaseUpdateProcessor, InstructionsProcessor>()

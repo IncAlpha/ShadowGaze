@@ -28,11 +28,11 @@ public class GeneralUpdateProcessor(
             }
         }
 
+        var updateType = UpdateType.FromString(update.GetUpdateType());
         foreach (var processor in updateProcessors)
         {
             try
             {
-                var updateType = UpdateType.FromString(update.GetUpdateType());
                 if (processor.Filter is not null &&
                     !processor.Filter.Invoke(updateType, update, sessionContext))
                 {
