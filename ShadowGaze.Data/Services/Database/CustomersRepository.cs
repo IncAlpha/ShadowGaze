@@ -32,4 +32,9 @@ public class CustomersRepository(DatabaseContext context) : BaseModelRepository<
             .Include(_ => _.Endpoint)
             .FirstOrDefaultAsync(c => c.TelegramId == id);   
     }
+    
+    public async Task<Customer> GetByTelegramIdAsync(long id)
+    {
+        return await DatabaseContext.Customers.FirstOrDefaultAsync(c => c.TelegramId == id);   
+    }
 }

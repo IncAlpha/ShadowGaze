@@ -54,7 +54,7 @@ public class EndpointsProcessor(
         var customer = await customersRepository.GetOrCreateAsync(user.Id, user.Username);
         if (customer.EndpointId is null)
         {
-            var expiryDate = DateTime.SpecifyKind(DateTime.Now.AddDays(20).ToUniversalTime(), DateTimeKind.Unspecified);
+            var expiryDate = DateTime.Now.AddDays(20);
             xray = await xrayRepository.GetByIdAsync(_options.XUiConfigurationId);
             // TODO: проверять на наличие клиента
             var clientGuid = await xuiService.AddClient(xray, _options.InboundId, user.Username, expiryDate);
@@ -72,7 +72,7 @@ public class EndpointsProcessor(
                 XrayId = _options.XUiConfigurationId,
                 InboundId = _options.InboundId,
                 ClientId = clientGuid.Value,
-                CreatedAt = DateTime.SpecifyKind(DateTime.Now.ToUniversalTime(), DateTimeKind.Unspecified),
+                CreatedAt = DateTime.Now,
                 ExpiryDate = expiryDate
             };
             

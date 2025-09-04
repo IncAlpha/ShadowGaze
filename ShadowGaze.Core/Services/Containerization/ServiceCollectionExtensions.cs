@@ -117,7 +117,8 @@ public static class ServiceCollectionExtensions
             .AddScoped<XrayRepository>()
             .AddScoped<PlatformInstructionsRepository>()
             .AddScoped<BotSectionsRepository>()
-            .AddScoped<TelegramFilesRepository>();
+            .AddScoped<TelegramFilesRepository>()
+            .AddScoped<PaymentsRepository>();
     }
 
     private static IServiceCollection AddBotOptions(this IServiceCollection services, HostBuilderContext context)

@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using ShadowGaze.Data.Models.Database;
 using ShadowGaze.Data.Models.Database.Instructions;
 using ShadowGaze.Data.Models.Database.TelegramFiles;
+using ShadowGaze.Data.Services.Database.Extensions;
 
 namespace ShadowGaze.Data.Services.Database;
 
@@ -12,13 +13,13 @@ public sealed class DatabaseContext(DbContextOptions<DatabaseContext> options) :
     public DbSet<Endpoint> Endpoints => Set<Endpoint>();
     public DbSet<PlatformInstruction> PlatformInstructions => Set<PlatformInstruction>();
     public DbSet<TelegramFile> TelegramFiles => Set<TelegramFile>();
-
     public DbSet<BotSection> BotSections => Set<BotSection>();
-
+    public DbSet<Payment> Payments => Set<Payment>();
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         ConfigureEndpoints(modelBuilder);
         ConfigureCustomers(modelBuilder);
+        ConfigurePayments(modelBuilder);
     }
 
     private void ConfigureEndpoints(ModelBuilder modelBuilder)
@@ -31,11 +32,13 @@ public sealed class DatabaseContext(DbContextOptions<DatabaseContext> options) :
 
         modelBuilder.Entity<Endpoint>()
             .Property(e => e.CreatedAt)
-            .HasColumnType("timestamp without time zone");
+            .HasColumnType("timestamp without time zone")
+            .HasUtcConversion();
 
         modelBuilder.Entity<Endpoint>()
             .Property(e => e.ExpiryDate)
-            .HasColumnType("timestamp without time zone");
+            .HasColumnType("timestamp without time zone")
+            .HasUtcConversion();
     }
 
     private void ConfigureCustomers(ModelBuilder modelBuilder)
@@ -45,6 +48,20 @@ public sealed class DatabaseContext(DbContextOptions<DatabaseContext> options) :
             .WithOne()
             .HasForeignKey<Customer>(x => x.EndpointId)
             .OnDelete(DeleteBehavior.Cascade);
+    }
+
+    private void ConfigurePayments(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<Payment>()
+            .HasOne<Customer>()
+            .WithMany()
+            .HasForeignKey(x => x.CustomerId)
+            .OnDelete(DeleteBehavior.SetNull);
+            
+        modelBuilder.Entity<Payment>()
+            .Property(p => p.PaymentDate)
+            .HasColumnType("timestamp without time zone")
+            .HasUtcConversion();
     }
 
     private void ConfigurePlatformInstructions(ModelBuilder modelBuilder)

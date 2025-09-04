@@ -23,6 +23,7 @@ public abstract class BaseMainMenuProcessor(
 
     public override async Task Process(Update update, SessionContext sessionContext)
     {
+        await InternalProcess(update, sessionContext);
         var userId = GetUserId(update);
         var chatId = GetChatId(update);
 
@@ -43,6 +44,11 @@ public abstract class BaseMainMenuProcessor(
 
     protected abstract long GetUserId(Update update);
     protected abstract long GetChatId(Update update);
+
+    protected virtual Task InternalProcess(Update update, SessionContext sessionContext)
+    {
+        return Task.CompletedTask;
+    }
 
     private async Task AnswerExistUser(long chatId)
     {
@@ -108,7 +114,7 @@ public abstract class BaseMainMenuProcessor(
             .AppendCallbackData("Продлить", CallbackQueriesConstants.Subscriptions)
             .AppendRow()
             .AppendUrl("Связаться с нами", "https://t.me/shadowgazeproxy")
-            .AppendCallbackData("Реферальная программа", CallbackQueriesConstants.Referrals)
+            // .AppendCallbackData("Реферальная программа", CallbackQueriesConstants.Referrals)
             .Build();
     }
 

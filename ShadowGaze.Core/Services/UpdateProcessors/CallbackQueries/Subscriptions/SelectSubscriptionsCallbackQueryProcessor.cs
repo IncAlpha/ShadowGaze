@@ -28,12 +28,12 @@ public class SelectSubscriptionsCallbackQueryProcessor(
         var subscriptionDescription = subscriptionMatches.GetSubscriptionDescription(subType);
         var secret = configuration.GetSection("secret");
         var providerToken = secret["providerToken"];
-        // TODO Fill payment details
-        var lp = new LabeledPrice("Оплата подписки", subscriptionDescription.CentsAmount);
-        var args = new SendInvoiceArgs(query.Message!.Chat.Id,
-            "SG Subscription",
-            "SG Subscription",
-            "This is payload",
+        var chatId = query.Message!.Chat.Id;
+        var lp = new LabeledPrice("Продлить", subscriptionDescription.CentsAmount);
+        var args = new SendInvoiceArgs(chatId,
+            "Продление доступа",
+            $"Период пользования будет увеличен на {subscriptionDescription.DurationInMonths} {subscriptionDescription.Estimate.ToLower()}",
+            subscriptionDescription.DurationInMonths.ToString(),
             "RUB",
             [lp])
         {
