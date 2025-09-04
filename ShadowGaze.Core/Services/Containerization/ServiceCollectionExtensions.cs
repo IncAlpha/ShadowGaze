@@ -93,8 +93,8 @@ public static class ServiceCollectionExtensions
                 {
                     UseCookies = true,
                     CookieContainer = cookieContainer,
-                    UseProxy = true,
-                    Proxy = new WebProxy("socks5://localhost:2080")
+                    // UseProxy = true,
+                    // Proxy = new WebProxy("socks5://localhost:2080")
                 };
             })
             .RemoveAllLoggers()
