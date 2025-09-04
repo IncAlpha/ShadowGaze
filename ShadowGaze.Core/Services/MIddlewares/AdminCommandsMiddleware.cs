@@ -9,6 +9,7 @@ public class AdminCommandsMiddleware(IConfiguration configuration) : IMiddleware
     private readonly string[] _adminCommands =
     [
         AdminCommandsConstants.AddInstruction,
+        AdminCommandsConstants.File
     ];
 
     /// <summary>

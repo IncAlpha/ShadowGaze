@@ -39,7 +39,8 @@ public static class StringExtensions
         char[] charsToEscape =
         [
             '>', '#', '+', '-',
-            '=', '|', '.', '!'
+            '=', '|', '.', '!', '>',
+            '(', ')', '[', ']', '{', '}',
         ];
         var result = new System.Text.StringBuilder(text.Length * 2);
 

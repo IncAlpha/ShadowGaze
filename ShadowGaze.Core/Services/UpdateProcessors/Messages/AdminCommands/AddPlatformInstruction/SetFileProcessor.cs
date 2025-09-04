@@ -2,6 +2,7 @@ using ShadowGaze.Core.Models;
 using ShadowGaze.Core.Models.SessionContexts;
 using ShadowGaze.Core.Models.SessionContexts.Instructions;
 using ShadowGaze.Core.Services.Extensions;
+using ShadowGaze.Data.Models.Database.TelegramFiles;
 using ShadowGaze.Data.Services.Database.Instructions;
 using Telegram.BotAPI.AvailableMethods;
 using Telegram.BotAPI.AvailableTypes;
@@ -24,7 +25,7 @@ public class SetFileProcessor(
             {
                 Platform: not null,
                 Description: not null,
-                FileId: null,
+                TelegramFile: null,
                 ApplicationName: null,
                 ApplicationUrl: null
             }
@@ -50,12 +51,19 @@ public class SetFileProcessor(
             return;
         }
 
-        var fileId = message.Video?.FileId ?? message.Animation?.FileId;
+        var newFile = new TelegramFile
+        {
+            FileId = message.GetMediaFileId(),
+            FileUniqueId = message.GetMediaFileUniqueId(),
+            FileType = message.GetFileType(),
+            Description = $"Инструкция для {instruction.Platform} - {instruction.ApplicationName}"
+        };
+
         var applicationName = caption.Split("\n")[0].Trim();
         var applicationUrl = caption.Split("\n")[1].Trim();
         instruction.ApplicationName = applicationName;
         instruction.ApplicationUrl = applicationUrl;
-        instruction.FileId = fileId;
+        instruction.TelegramFile = newFile;
         await Bot.DeleteMessageAsync(chatId, message.MessageId);
 
         await instructionsRepository.SaveAsync(instruction);

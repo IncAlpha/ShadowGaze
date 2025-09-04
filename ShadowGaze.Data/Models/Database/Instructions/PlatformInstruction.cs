@@ -1,4 +1,7 @@
 // ReSharper disable EntityFramework.ModelValidation.UnlimitedStringLength
+
+using ShadowGaze.Data.Models.Database.TelegramFiles;
+
 namespace ShadowGaze.Data.Models.Database.Instructions;
 
 public class PlatformInstruction : BaseDatabaseModel
@@ -7,5 +10,6 @@ public class PlatformInstruction : BaseDatabaseModel
     public string ApplicationName { get; set; }
     public string ApplicationUrl { get; set; }
     public string Description { get; set; }
-    public string FileId { get; set; }
+    public int? TelegramFileId { get; set; }
+    public TelegramFile TelegramFile { get; set; }
 }

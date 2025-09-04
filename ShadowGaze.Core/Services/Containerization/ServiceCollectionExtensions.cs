@@ -15,6 +15,7 @@ using ShadowGaze.Core.Services.UpdateProcessors.CallbackQueries.Instructions;
 using ShadowGaze.Core.Services.UpdateProcessors.CallbackQueries.Subscriptions;
 using ShadowGaze.Core.Services.UpdateProcessors.Messages;
 using ShadowGaze.Core.Services.UpdateProcessors.Messages.AdminCommands.AddPlatformInstruction;
+using ShadowGaze.Core.Services.UpdateProcessors.Messages.AdminCommands.GetFileId;
 using ShadowGaze.Core.Services.UpdateProcessors.Messages.MainMenu;
 using ShadowGaze.Core.Services.UpdateProcessors.Payments;
 using ShadowGaze.Core.Services.XUI;
@@ -39,6 +40,7 @@ public static class ServiceCollectionExtensions
             .AddBotOptions(context)
             .AddRepositories()
             .AddHttp()
+            .AddMiddleware()
             .AddUpdateProcessors();
     }
 
@@ -66,6 +68,10 @@ public static class ServiceCollectionExtensions
                 .AddScoped<BaseUpdateProcessor, SetPlatformProcessor>()
                 .AddScoped<BaseUpdateProcessor, SetDescriptionProcessor>()
                 .AddScoped<BaseUpdateProcessor, SetFileProcessor>()
+            
+                // fileId
+                .AddScoped<BaseUpdateProcessor, FileProcessor>()
+                .AddScoped<BaseUpdateProcessor, MediaProcessor>()
             ;
     } 
 
@@ -87,8 +93,8 @@ public static class ServiceCollectionExtensions
                 {
                     UseCookies = true,
                     CookieContainer = cookieContainer,
-                    // UseProxy = true,
-                    // Proxy = new WebProxy("http://localhost:2081")
+                    UseProxy = true,
+                    Proxy = new WebProxy("socks5://localhost:2080")
                 };
             })
             .RemoveAllLoggers()
@@ -109,7 +115,9 @@ public static class ServiceCollectionExtensions
         return services.AddScoped<CustomersRepository>()
             .AddScoped<EndpointsRepository>()
             .AddScoped<XrayRepository>()
-            .AddScoped<PlatformInstructionsRepository>();
+            .AddScoped<PlatformInstructionsRepository>()
+            .AddScoped<BotSectionsRepository>()
+            .AddScoped<TelegramFilesRepository>();
     }
 
     private static IServiceCollection AddBotOptions(this IServiceCollection services, HostBuilderContext context)

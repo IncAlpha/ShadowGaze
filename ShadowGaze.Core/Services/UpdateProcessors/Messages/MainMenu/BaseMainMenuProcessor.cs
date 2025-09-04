@@ -1,78 +1,121 @@
 using ShadowGaze.Core.Models;
 using ShadowGaze.Core.Models.Constants;
 using ShadowGaze.Core.Models.SessionContexts;
+using ShadowGaze.Core.Services.Extensions;
 using ShadowGaze.Data.Models.Database;
 using ShadowGaze.Data.Services.Database;
+using Telegram.BotAPI.AvailableMethods;
 using Telegram.BotAPI.AvailableTypes;
 using Telegram.BotAPI.GettingUpdates;
 using UpdateTypes = ShadowGaze.Data.Models.TelegramApi.UpdateTypes;
 
 namespace ShadowGaze.Core.Services.UpdateProcessors.Messages.MainMenu;
 
-public abstract class BaseMainMenuProcessor(PublicBotProperties botProperties, CustomersRepository customersRepository) : BaseUpdateProcessor(botProperties)
+public abstract class BaseMainMenuProcessor(
+    PublicBotProperties botProperties,
+    CustomersRepository customersRepository,
+    BotSectionsRepository sectionsRepository
+) : BaseUpdateProcessor(botProperties)
 {
     public abstract override Func<UpdateTypes, Update, SessionContext, bool> Filter { get; }
-    
+
     private Customer _customer;
+
     public override async Task Process(Update update, SessionContext sessionContext)
     {
         var userId = GetUserId(update);
+        var chatId = GetChatId(update);
+
+        if (update.CallbackQuery is not null)
+        {
+            await Bot.AnswerCallbackQueryAsync(new AnswerCallbackQueryArgs(update.CallbackQuery.Id));
+        }
+
         _customer = await customersRepository.GetByTelegramIdWithEndpointAsync(userId);
-        await AnswerProcess(update, sessionContext);
-    }
-    
-    protected abstract long GetUserId(Update update);
-    protected abstract Task AnswerProcess(Update update, SessionContext sessionContext);
-    
-    protected string GetAnswerText()
-    {
         if (ExistUser())
         {
-            return ExistUserAnswer();
+            await AnswerExistUser(chatId);
+            return;
         }
-        return NewUserAnswer();
+
+        await AnswerNewUser(chatId);
     }
 
-    private string ExistUserAnswer()
+    protected abstract long GetUserId(Update update);
+    protected abstract long GetChatId(Update update);
+
+    private async Task AnswerExistUser(long chatId)
     {
         var endDate = _customer.Endpoint.ExpiryDate;
-        return $"Остаток дней: {(endDate - DateTime.Now).Days}\nДата окончания: {endDate:dd-MMMM-yyyy}";
-    }
-    
-    private string NewUserAnswer()
-    {
-        return "ShadowGaze from BigBroTeam";    
-    }
+        var text = $"Остаток дней: {(endDate - DateTime.Now).Days}\nДата окончания: {endDate:dd-MMMM-yyyy}";
 
-    private InlineKeyboardMarkup ExistUserKeyboard()
-    {
-        return BuildKeyboard()
-            .AppendCallbackData("Proxy", CallbackQueriesConstants.Endpoints)
-            .AppendCallbackData("Продлить", CallbackQueriesConstants.Subscriptions)
-            .AppendRow()
-            .AppendCallbackData("Связаться с нами", CallbackQueriesConstants.AboutAs)
-            .AppendCallbackData("Реферальная программа", CallbackQueriesConstants.Referrals)
-            .Build();   
-    }
+        var header = await sectionsRepository.GetByNameAsync("main_menu");
 
-    protected InlineKeyboardMarkup GetKeyboard()
-    {
-        if (ExistUser())
+        // TODO: отрефакторить после своей реализации отправки/редактирования сообщений с файлами и без (единая структура Message)
+        if (header is null)
         {
-            return ExistUserKeyboard();
+            var sendMessageArgs = new SendMessageArgs(chatId, text)
+            {
+                ReplyMarkup = BuildMainMenuKeyboard()
+            };
+            await Bot.SendMessageAsync(sendMessageArgs);
+            return;
         }
-        return NewUserKeyboard();
+
+        var file = header.TelegramFile;
+        var messageArgs = new SendPhotoArgs(chatId, file.FileId)
+        {
+            Caption = text,
+            ReplyMarkup = BuildMainMenuKeyboard()
+        };
+        await Bot.SendFileAsync(messageArgs);
     }
 
-    private InlineKeyboardMarkup NewUserKeyboard()
+    private async Task AnswerNewUser(long chatId)
     {
-        return BuildKeyboard()
-            .AppendCallbackData("Proxy", CallbackQueriesConstants.Endpoints)
-            .Build();
+        var text = "ShadowGaze from BigBroTeam";
+        var header = await sectionsRepository.GetByNameAsync("main_menu;new_user");
+
+        // TODO: отрефакторить после своей реализации отправки/редактирования сообщений с файлами и без (единая структура Message)
+        if (header is null)
+        {
+            var sendMessageArgs = new SendMessageArgs(chatId, text)
+            {
+                ReplyMarkup = BuildNewUserKeyboard()
+            };
+            await Bot.SendMessageAsync(sendMessageArgs);
+            return;
+        }
+
+        var file = header.TelegramFile;
+        var messageArgs = new SendPhotoArgs(chatId, file.FileId)
+        {
+            Caption = text,
+            ReplyMarkup = BuildNewUserKeyboard()
+        };
+        await Bot.SendFileAsync(messageArgs);
     }
 
     private bool ExistUser()
     {
         return !(_customer == null || _customer.Endpoint == null);
+    }
+
+    protected InlineKeyboardMarkup BuildMainMenuKeyboard()
+    {
+        return BuildKeyboard()
+            .AppendCallbackData("Proxy", CallbackQueriesConstants.Endpoints)
+            .AppendCallbackData("Продлить", CallbackQueriesConstants.Subscriptions)
+            .AppendRow()
+            .AppendUrl("Связаться с нами", "https://t.me/shadowgazeproxy")
+            .AppendCallbackData("Реферальная программа", CallbackQueriesConstants.Referrals)
+            .Build();
+    }
+
+    private InlineKeyboardMarkup BuildNewUserKeyboard()
+    {
+        return BuildKeyboard()
+            .AppendCallbackData("Proxy", CallbackQueriesConstants.Endpoints)
+            .Build();
     }
 }

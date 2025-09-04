@@ -1,3 +1,4 @@
+using ShadowGaze.Data.Models;
 using Telegram.BotAPI;
 using Telegram.BotAPI.AvailableTypes;
 
@@ -10,8 +11,8 @@ public static class MessageExtensions
     /// </summary>
     public static string GetMarkdownText(this Message message)
     {
-        if (string.IsNullOrEmpty(message.Text) || 
-            message.Entities == null || 
+        if (string.IsNullOrEmpty(message.Text) ||
+            message.Entities == null ||
             !message.Entities.Any())
         {
             return (message.Text ?? string.Empty).EscapeMarkdownSpecial();
@@ -27,7 +28,8 @@ public static class MessageExtensions
             // Добавляем текст до entity
             if (entity.Offset > currentIndex)
             {
-                result.Append(text.AsSpan(currentIndex, entity.Offset - currentIndex).ToString().EscapeMarkdownSpecial());
+                result.Append(
+                    text.AsSpan(currentIndex, entity.Offset - currentIndex).ToString().EscapeMarkdownSpecial());
             }
 
             var entityText = text.Substring(entity.Offset, entity.Length);
@@ -74,8 +76,8 @@ public static class MessageExtensions
 
     public static string GetMarkdownTextClear(this Message message)
     {
-        if (string.IsNullOrEmpty(message.Text) || 
-            message.Entities == null || 
+        if (string.IsNullOrEmpty(message.Text) ||
+            message.Entities == null ||
             !message.Entities.Any())
         {
             return message.Text ?? string.Empty;
@@ -138,13 +140,48 @@ public static class MessageExtensions
 
     public static bool HasMedia(this Message target)
     {
-        return target.Animation is not null || 
-               target.Audio is not null || 
-               target.Document is not null || 
-               target.Photo is not null  || 
-               target.Video is not null || 
-               target.VideoNote is not null || 
+        return target.Animation is not null ||
+               target.Audio is not null ||
+               target.Document is not null ||
+               target.Photo is not null ||
+               target.Video is not null ||
+               target.VideoNote is not null ||
                target.Voice is not null ||
                target.MediaGroupId is not null;
     }
+
+    public static string GetMediaFileId(this Message target) => target switch
+    {
+        { Animation: not null } => target.Animation.FileId,
+        { Audio: not null } => target.Audio.FileId,
+        { Document: not null } => target.Document.FileId,
+        { Photo: not null } => target.Photo.OrderByDescending(p => p.FileSize).First().FileId,
+        { Video: not null } => target.Video.FileId,
+        { VideoNote: not null } => target.VideoNote.FileId,
+        { Voice: not null } => target.Voice.FileId,
+        _ => null
+    };
+
+    public static string GetMediaFileUniqueId(this Message target) => target switch
+    {
+        { Animation: not null } => target.Animation.FileUniqueId,
+        { Audio: not null } => target.Audio.FileUniqueId,
+        { Document: not null } => target.Document.FileUniqueId,
+        { Photo: not null } => target.Photo.OrderByDescending(p => p.FileSize).First().FileUniqueId,
+        { Video: not null } => target.Video.FileUniqueId,
+        { VideoNote: not null } => target.VideoNote.FileUniqueId,
+        { Voice: not null } => target.Voice.FileUniqueId,
+        _ => null
+    };
+
+    public static TelegramFileTypes GetFileType(this Message target) => target switch
+    {
+        { Animation: not null } => TelegramFileTypes.Animation,
+        { Audio: not null } => TelegramFileTypes.Audio,
+        { Document: not null } => TelegramFileTypes.Document,
+        { Photo: not null } => TelegramFileTypes.Photo,
+        { Video: not null } => TelegramFileTypes.Video,
+        { VideoNote: not null } => TelegramFileTypes.VideoNote,
+        { Voice: not null } => TelegramFileTypes.Voice,
+    };
 }

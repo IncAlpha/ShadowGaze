@@ -14,7 +14,7 @@ public static class PlatformInstructionExtensions
         var builder = BuildKeyboard()
             .AppendUrl(platformInstruction.ApplicationName, platformInstruction.ApplicationUrl);
         postfixButton?.Invoke(builder);
-        return new SendVideoArgs(chatId, platformInstruction.FileId)
+        return new SendVideoArgs(chatId, platformInstruction.TelegramFile.FileId)
         {
             ParseMode = "MarkdownV2",
             Caption = platformInstruction.Description,
@@ -25,7 +25,7 @@ public static class PlatformInstructionExtensions
     public static EditMessageMediaArgs BuildEditMessageArgs(this PlatformInstruction platformInstruction, long chatId,
         int messageId, Action<InlineKeyboardBuilder> postfixButton = null)
     {
-        var media = new InputMediaVideo(platformInstruction.FileId)
+        var media = new InputMediaVideo(platformInstruction.TelegramFile.FileId)
         {
             Caption = platformInstruction.Description,
             ParseMode = "MarkdownV2",

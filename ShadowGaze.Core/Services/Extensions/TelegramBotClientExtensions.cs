@@ -22,6 +22,23 @@ public static class TelegramBotClientExtensions
         };
         return await bot.SendMessageAsync(sendMessageArgs);
     }
+    
+    public static async Task<Message> EditMessageAsync(this ITelegramBotClient bot, int messageId, SendMessageArgs messageArgs)
+    {
+        if (messageArgs.ChatId is not long chatId)
+        {
+            return null;
+        }
+
+        var editMessageArgs = new EditMessageTextArgs(messageArgs.Text)
+        {
+            ChatId = messageArgs.ChatId,
+            MessageId = messageId,
+            ReplyMarkup = (InlineKeyboardMarkup) messageArgs.ReplyMarkup,
+            ParseMode = messageArgs.ParseMode,
+        };
+        return await bot.EditMessageTextAsync<Message>(editMessageArgs);
+    }
 
     public static async Task<Message> RemoveLastButton(this ITelegramBotClient bot, Message message)
     {
