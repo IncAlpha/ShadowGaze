@@ -15,6 +15,9 @@ public class PlatformInstructionsRepository(DatabaseContext context) : BaseModel
 
     public virtual async Task<PlatformInstruction[]> GetForPlatformAsync(Platforms platform)
     {
-        return await Table.Where(model => model.Platform == platform).ToArrayAsync();
+        return await Table
+            .Include(p => p.TelegramFile)
+            .Where(model => model.Platform == platform)
+            .ToArrayAsync();
     }
 }
