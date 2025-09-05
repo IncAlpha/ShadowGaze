@@ -8,16 +8,24 @@ public class PlatformInstructionsRepository(DatabaseContext context) : BaseModel
 {
     protected override DbSet<PlatformInstruction> Table => context.PlatformInstructions;
     
-    public virtual PlatformInstruction[] GetForPlatform(Platforms platform)
+    public PlatformInstruction[] GetByPlatform(Platforms platform)
     {
-        return Table.Where(model => model.Platform == platform).ToArray();
+        return Table
+            .Where(model => model.Platform == platform)
+            .ToArray();
     }
 
-    public virtual async Task<PlatformInstruction[]> GetForPlatformAsync(Platforms platform)
+    public async Task<PlatformInstruction[]> GetByPlatformAsync(Platforms platform)
+    {
+        return await Table
+            .Where(model => model.Platform == platform)
+            .ToArrayAsync();
+    }
+
+    public async Task<PlatformInstruction> GetForMessageAsync(int entityIg)
     {
         return await Table
             .Include(p => p.TelegramFile)
-            .Where(model => model.Platform == platform)
-            .ToArrayAsync();
+            .FirstOrDefaultAsync(model => model.Id == entityIg);
     }
 }

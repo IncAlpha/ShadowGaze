@@ -33,7 +33,7 @@ public class GetInstructionByIdProcessor(
 
         await Bot.AnswerCallbackQueryAsync(new AnswerCallbackQueryArgs(query.Id));
 
-        var instruction = await instructionsRepository.GetByIdAsync(instructionId);
+        var instruction = await instructionsRepository.GetForMessageAsync(instructionId);
 
         if (instruction is null)
         {

@@ -34,7 +34,7 @@ public class GetInstructionsProcessor(
 
         await Bot.AnswerCallbackQueryAsync(new AnswerCallbackQueryArgs(query.Id));
 
-        var instructions = await platformInstructionsRepository.GetForPlatformAsync(platform);
+        var instructions = await platformInstructionsRepository.GetByPlatformAsync(platform);
 
         switch (instructions.Length)
         {
@@ -42,7 +42,9 @@ public class GetInstructionsProcessor(
                 await ProcessNoneInstruction(query, platform);
                 break;
             case 1:
-                await ProcessSingleInstruction(query, instructions[0]);
+                var instructionId = instructions[0].Id;
+                var instruction = await platformInstructionsRepository.GetForMessageAsync(instructionId);
+                await ProcessSingleInstruction(query, instruction);
                 break;
             case >= 1:
                 await ProcessMultipleInstruction(query, instructions);
