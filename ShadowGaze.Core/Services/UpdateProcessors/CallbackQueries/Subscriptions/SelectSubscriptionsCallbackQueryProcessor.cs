@@ -37,7 +37,8 @@ public class SelectSubscriptionsCallbackQueryProcessor(
             "RUB",
             [lp])
         {
-            ProviderToken = providerToken
+            ProviderToken = providerToken,
+            NeedEmail = true
         };
         await Bot.SendInvoiceAsync(args);
     }
