@@ -39,59 +39,24 @@ public class EndpointsProcessor(
         var query = update.CallbackQuery!;
         var message = query.Message!;
         var chatId = message.Chat.Id;
-
+        var user = query.From;
         await Bot.AnswerCallbackQueryAsync(new AnswerCallbackQueryArgs(query.Id));
-
-        var user = update.CallbackQuery?.From;
-        if (user == null)
-        {
-            return;
-        }
-
-        Endpoint endpoint;
-        Xray xray;
         
         var customer = await customersRepository.GetOrCreateAsync(user.Id, user.Username);
-        if (customer.EndpointId is null)
+        var endpoint = await GetOrCreateEndpointAsync(customer);
+        if (endpoint == null)
         {
-            var expiryDate = DateTime.Now.AddDays(20);
-            xray = await xrayRepository.GetByIdAsync(_options.XUiConfigurationId);
-            // TODO: проверять на наличие клиента
-            var clientGuid = await xuiService.AddClient(xray, _options.InboundId, user.Username, expiryDate);
-
-            if (clientGuid is null)
-            {
-                logger.LogError("Не удалось создать клиента для inbound");
-                await Bot.EditMessageTextAsync(chatId, message.MessageId,
-                    "Произошла внутренняя ошибка, обратитесь к специалисту технической поддержки");
-                return;
-            }
-
-            endpoint = new Endpoint
-            {
-                XrayId = _options.XUiConfigurationId,
-                InboundId = _options.InboundId,
-                ClientId = clientGuid.Value,
-                CreatedAt = DateTime.Now,
-                ExpiryDate = expiryDate
-            };
-            
-            await endpointsRepository.SaveAsync(endpoint);
-            customer.EndpointId = endpoint.Id;
-            await customersRepository.SaveAsync(customer);
+            await Bot.EditMessageTextAsync(chatId, message.MessageId,
+                "Произошла внутренняя ошибка, обратитесь к специалисту технической поддержки");
+            return;
         }
-
-        endpoint = await endpointsRepository.GetByIdAsync(customer.EndpointId.Value);
-        string connectionString;
-        if (endpoint.ConnectionString is null)
+        var connectionString = await GetOrCreateConnectionStringAsync(endpoint, user);
+        if (connectionString == null)
         {
-            xray = await xrayRepository.GetByIdAsync(endpoint.XrayId);
-            var inbound = await xuiService.GetInbound(xray, _options.InboundId);
-            connectionString = BuildConnectionString(user, endpoint, xray, inbound.Object);
-            endpoint.ConnectionString = connectionString;
-            await endpointsRepository.SaveAsync(endpoint);
+            await Bot.EditMessageTextAsync(chatId, message.MessageId,
+                "Произошла внутренняя ошибка, обратитесь к специалисту технической поддержки");
+            return;
         }
-        connectionString = endpoint.ConnectionString;
         
         var qrCodeArgs = GetQrCodeMessageArgs(chatId, connectionString);
         await Bot.SendPhotoAsync(qrCodeArgs);
@@ -101,6 +66,62 @@ public class EndpointsProcessor(
             ReplyMarkup = GetKeyboard()
         };
         await Bot.SendMessageAsync(messageArgs);
+    }
+
+    private async Task<Endpoint> GetOrCreateEndpointAsync(Customer customer)
+    {
+        if (customer.EndpointId is null)
+        {
+            // TODO: проверять на наличие клиента
+            Client newClient;
+            try
+            { 
+                newClient = await xuiService.AddDefaultClient(_options.XUiConfigurationId, _options.InboundId, customer.TelegramName);
+            }
+            catch (Exception e)
+            {
+                logger.LogError("Не удалось создать клиента для inbound");
+                return null;
+            }
+
+            var endpoint = new Endpoint
+            {
+                XrayId = _options.XUiConfigurationId,
+                InboundId = _options.InboundId,
+                ClientId = newClient.Id,
+                CreatedAt = DateTime.Now,
+                ExpiryDate = newClient.ExpiryTime
+            };
+            await endpointsRepository.SaveAsync(endpoint);
+            customer.EndpointId = endpoint.Id;
+            await customersRepository.SaveAsync(customer);
+            return endpoint;
+        }
+        return await endpointsRepository.GetByIdAsync(customer.EndpointId!.Value);
+    }
+
+    private async Task<string> GetOrCreateConnectionStringAsync(Endpoint endpoint, User user)
+    {
+        if (endpoint.ConnectionString is null)
+        {
+            var xray = await xrayRepository.GetByIdAsync(endpoint.XrayId);
+            InboundDto inboundDto;
+            try
+            {
+                var inbound = await xuiService.GetInbound(endpoint.XrayId, _options.InboundId);
+                inboundDto = inbound.Object;
+
+            }
+            catch (Exception e)
+            {
+                logger.LogError("Не удалось получить inbound");
+                return null;
+            }
+            var connectionString = BuildConnectionString(user, endpoint, xray, inboundDto);
+            endpoint.ConnectionString = connectionString;
+            await endpointsRepository.SaveAsync(endpoint);    
+        }
+        return endpoint.ConnectionString;
     }
 
     private InlineKeyboardMarkup GetKeyboard()

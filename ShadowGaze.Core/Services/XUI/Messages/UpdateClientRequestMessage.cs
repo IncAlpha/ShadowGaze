@@ -3,9 +3,9 @@ using ShadowGaze.Core.Models.XUI;
 
 namespace ShadowGaze.Core.Services.XUI.Messages;
 
-public class AddClientRequestMessage : HttpRequestMessage
+public class UpdateClientRequestMessage : HttpRequestMessage
 {
-    public AddClientRequestMessage(int inboundId, ClientDto client): base(HttpMethod.Post, "/panel/api/inbounds/addClient")
+    public UpdateClientRequestMessage(int inboundId, ClientDto client): base(HttpMethod.Post, $"/panel/api/inbounds/updateClient/{client.Id}")
     {
         var inboundSettings = new InboundEnvelopeSettings()
         {

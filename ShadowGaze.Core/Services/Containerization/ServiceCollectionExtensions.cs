@@ -35,6 +35,7 @@ public static class ServiceCollectionExtensions
             .AddSingleton<SessionContextProvider>()
             .AddScoped<GeneralUpdateProcessor>()
             .AddSingleton<XuiService>()
+            .AddSingleton<IXuiClientFactory, XuiClientFactory>()
             .AddSingleton<SubscriptionMatches>()
             .AddDatabase(context)
             .AddBotOptions(context)

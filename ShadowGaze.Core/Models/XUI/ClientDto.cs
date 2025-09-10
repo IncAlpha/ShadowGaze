@@ -25,3 +25,9 @@ public sealed class ClientDto
     [JsonPropertyName("reset")]
     public int Reset { get; set; }
 }
+
+public sealed class Client
+{
+    public Guid Id { get; init; }
+    public DateTime ExpiryTime { get; set; }
+}

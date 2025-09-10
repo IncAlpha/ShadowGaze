@@ -13,7 +13,8 @@ public class CheckoutMessageProcessor(
     PublicBotProperties botProperties,
     CustomersRepository customersRepository,
     BotSectionsRepository botSectionsRepository,
-    PaymentsRepository paymentsRepository) 
+    PaymentsRepository paymentsRepository,
+    XuiService xuiService) 
     : BaseMainMenuProcessor(botProperties, customersRepository, botSectionsRepository)
 {
     private readonly CustomersRepository _customersRepository = customersRepository;
@@ -39,9 +40,17 @@ public class CheckoutMessageProcessor(
         
         if (int.TryParse(successfulPayment.InvoicePayload, out var monthNumber) && customer is { Endpoint: not null })
         {
-            //TODO update expiry date in Xray
-            customer.Endpoint.ExpiryDate = customer.Endpoint.ExpiryDate.AddMonths(monthNumber);
+            customer.Endpoint.ExpiryDate = customer.Endpoint.ExpiryDate < DateTime.Now
+                ? DateTime.Now.AddMonths(monthNumber)
+                : customer.Endpoint.ExpiryDate.AddMonths(monthNumber);
             await _customersRepository.SaveAsync(customer);
+
+            var xuiClient = await xuiService.GetClientAsync(
+                customer.Endpoint.XrayId, 
+                customer.Endpoint.InboundId,
+                customer.Endpoint.ClientId);
+            xuiClient.ExpiryTime = new DateTimeOffset(customer.Endpoint.ExpiryDate).ToUnixTimeMilliseconds();
+            await xuiService.UpdateClientAsync(customer.Endpoint.XrayId, customer.Endpoint.InboundId, xuiClient);
         }
         
     }

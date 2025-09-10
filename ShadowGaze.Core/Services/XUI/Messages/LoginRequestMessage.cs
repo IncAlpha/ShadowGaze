@@ -1,22 +1,13 @@
-using ShadowGaze.Data.Models.Database;
-
 namespace ShadowGaze.Core.Services.XUI.Messages;
-
-public class LoginRequestMessage(Xray xray) : RequestMessage(xray)
+public class LoginRequestMessage : HttpRequestMessage
 {
-    public override HttpRequestMessage BuildRequestMessage()
+    public LoginRequestMessage(string username, string password): base(HttpMethod.Post, "/login")
     {
         var body = new List<KeyValuePair<string, string>>
         {
-            new("username", xray.Username),
-            new("password", xray.Password)
+            new("username", username),
+            new("password", password)
         };
-        UriBuilder.Path += "/login";
-        return new HttpRequestMessage
-        {
-            Method = HttpMethod.Post,
-            RequestUri = UriBuilder.Uri,
-            Content = new FormUrlEncodedContent(body)
-        };
+        Content = new FormUrlEncodedContent(body);
     }
 }
