@@ -9,5 +9,4 @@ public class Payment : BaseDatabaseModel
     public string InvoicePayload {get; set;}
     public string ProviderPaymentChargeId  {get; set;}
     public string TelegramPaymentChargeId   {get; set;}
-    
 }

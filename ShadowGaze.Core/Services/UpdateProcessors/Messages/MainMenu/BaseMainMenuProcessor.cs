@@ -1,6 +1,7 @@
 using ShadowGaze.Core.Models;
 using ShadowGaze.Core.Models.Constants;
 using ShadowGaze.Core.Models.SessionContexts;
+using ShadowGaze.Core.Models.SessionContexts.PromotionCodes;
 using ShadowGaze.Core.Services.Extensions;
 using ShadowGaze.Data.Models.Database;
 using ShadowGaze.Data.Services.Database;
@@ -23,6 +24,7 @@ public abstract class BaseMainMenuProcessor(
 
     public override async Task Process(Update update, SessionContext sessionContext)
     {
+        sessionContext.UpdateState(new EmptyContext());
         await InternalProcess(update, sessionContext);
         var userId = GetUserId(update);
         var chatId = GetChatId(update);
@@ -112,6 +114,8 @@ public abstract class BaseMainMenuProcessor(
         return BuildKeyboard()
             .AppendCallbackData("Proxy", CallbackQueriesConstants.Endpoints)
             .AppendCallbackData("Продлить", CallbackQueriesConstants.Subscriptions)
+            .AppendRow()
+            .AppendCallbackData("У меня есть промокод", CallbackQueriesConstants.PromotionalCodes)
             .AppendRow()
             .AppendUrl("Связаться с нами", "https://t.me/shadowgazeproxy")
             // .AppendCallbackData("Реферальная программа", CallbackQueriesConstants.Referrals)

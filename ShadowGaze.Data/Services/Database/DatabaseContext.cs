@@ -15,11 +15,15 @@ public sealed class DatabaseContext(DbContextOptions<DatabaseContext> options) :
     public DbSet<TelegramFile> TelegramFiles => Set<TelegramFile>();
     public DbSet<BotSection> BotSections => Set<BotSection>();
     public DbSet<Payment> Payments => Set<Payment>();
+    public DbSet<PromotionalCode> PromotionalCodes => Set<PromotionalCode>();
+    public DbSet<PromotionalCodeUsage> PromotionalCodeUsages =>Set<PromotionalCodeUsage>();
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         ConfigureEndpoints(modelBuilder);
         ConfigureCustomers(modelBuilder);
         ConfigurePayments(modelBuilder);
+        ConfigurePromotionalCodes(modelBuilder);
+        ConfigurePromotionalCodeUsages(modelBuilder);
     }
 
     private void ConfigureEndpoints(ModelBuilder modelBuilder)
@@ -62,6 +66,35 @@ public sealed class DatabaseContext(DbContextOptions<DatabaseContext> options) :
             .Property(p => p.PaymentDate)
             .HasColumnType("timestamp without time zone")
             .HasUtcConversion();
+    }
+
+    private void ConfigurePromotionalCodes(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<PromotionalCode>()
+            .Property(pc => pc.StartDate)
+            .HasColumnType("timestamp without time zone")
+            .HasUtcConversion();
+        
+        modelBuilder.Entity<PromotionalCode>()
+            .Property(pc => pc.EndDate)
+            .HasColumnType("timestamp without time zone")
+            .HasUtcConversion();
+    }
+    
+    private void ConfigurePromotionalCodeUsages(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<PromotionalCodeUsage>()
+            .HasKey(e => new { e.CustomerId, e.PromotionalCodeId });
+
+        modelBuilder.Entity<PromotionalCodeUsage>()
+            .HasOne<Customer>()
+            .WithMany()
+            .HasForeignKey(e => e.CustomerId);
+
+        modelBuilder.Entity<PromotionalCodeUsage>()
+            .HasOne<PromotionalCode>()
+            .WithMany()
+            .HasForeignKey(e => e.PromotionalCodeId);
     }
 
     private void ConfigurePlatformInstructions(ModelBuilder modelBuilder)
