@@ -70,57 +70,56 @@ public class EndpointsProcessor(
 
     private async Task<Endpoint> GetOrCreateEndpointAsync(Customer customer)
     {
-        if (customer.EndpointId is null)
+        if (customer.EndpointId is not null)
         {
-            // TODO: проверять на наличие клиента
-            Client newClient;
-            try
-            { 
-                newClient = await xuiService.AddDefaultClient(_options.XUiConfigurationId, _options.InboundId, customer.TelegramName);
-            }
-            catch (Exception e)
-            {
-                logger.LogError("Не удалось создать клиента для inbound");
-                return null;
-            }
-
-            var endpoint = new Endpoint
-            {
-                XrayId = _options.XUiConfigurationId,
-                InboundId = _options.InboundId,
-                ClientId = newClient.Id,
-                CreatedAt = DateTime.Now,
-                ExpiryDate = newClient.ExpiryTime
-            };
-            await endpointsRepository.SaveAsync(endpoint);
-            customer.EndpointId = endpoint.Id;
-            await customersRepository.SaveAsync(customer);
-            return endpoint;
+            return await endpointsRepository.GetByIdAsync(customer.EndpointId!.Value);
         }
-        return await endpointsRepository.GetByIdAsync(customer.EndpointId!.Value);
+        Client newClient;
+        try
+        { 
+            var xuiClientName = string.IsNullOrWhiteSpace(customer.TelegramName) ? 
+                customer.TelegramId.ToString() : 
+                customer.TelegramName;
+            newClient = await xuiService.AddDefaultClient(_options.XUiConfigurationId, _options.InboundId, xuiClientName);
+        }
+        catch (Exception e)
+        {
+            logger.LogError("Не удалось создать клиента для inbound");
+            return null;
+        }
+
+        var endpoint = new Endpoint
+        {
+            XrayId = _options.XUiConfigurationId,
+            InboundId = _options.InboundId,
+            ClientId = newClient.Id,
+            CreatedAt = DateTime.Now,
+            ExpiryDate = newClient.ExpiryTime
+        };
+        await endpointsRepository.SaveAsync(endpoint);
+        customer.EndpointId = endpoint.Id;
+        await customersRepository.SaveAsync(customer);
+        return endpoint;
     }
 
     private async Task<string> GetOrCreateConnectionStringAsync(Endpoint endpoint, User user)
     {
-        if (endpoint.ConnectionString is null)
+        if (endpoint.ConnectionString is not null) return endpoint.ConnectionString;
+        var xray = await xrayRepository.GetByIdAsync(endpoint.XrayId);
+        InboundDto inboundDto;
+        try
         {
-            var xray = await xrayRepository.GetByIdAsync(endpoint.XrayId);
-            InboundDto inboundDto;
-            try
-            {
-                var inbound = await xuiService.GetInbound(endpoint.XrayId, _options.InboundId);
-                inboundDto = inbound.Object;
-
-            }
-            catch (Exception e)
-            {
-                logger.LogError("Не удалось получить inbound");
-                return null;
-            }
-            var connectionString = BuildConnectionString(user, endpoint, xray, inboundDto);
-            endpoint.ConnectionString = connectionString;
-            await endpointsRepository.SaveAsync(endpoint);    
+            var inbound = await xuiService.GetInbound(endpoint.XrayId, _options.InboundId);
+            inboundDto = inbound.Object;
         }
+        catch (Exception e)
+        {
+            logger.LogError("Не удалось получить inbound");
+            return null;
+        }
+        var connectionString = BuildConnectionString(user, endpoint, xray, inboundDto);
+        endpoint.ConnectionString = connectionString;
+        await endpointsRepository.SaveAsync(endpoint);
         return endpoint.ConnectionString;
     }
 

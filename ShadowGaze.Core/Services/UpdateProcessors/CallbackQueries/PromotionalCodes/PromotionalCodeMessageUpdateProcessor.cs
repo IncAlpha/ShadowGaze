@@ -2,6 +2,7 @@ using ShadowGaze.Core.Models;
 using ShadowGaze.Core.Models.Constants;
 using ShadowGaze.Core.Models.SessionContexts;
 using ShadowGaze.Core.Models.SessionContexts.PromotionCodes;
+using ShadowGaze.Core.Services.XUI;
 using ShadowGaze.Data.Models.Database;
 using ShadowGaze.Data.Services.Database;
 using Telegram.BotAPI.AvailableMethods;
@@ -15,7 +16,8 @@ public class PromotionalCodeMessageUpdateProcessor(
     PublicBotProperties botProperties, 
     PromotionalCodeRepository promotionalCodeRepository,
     PromotionalCodeUsageRepository promotionalCodeUsageRepository,
-    CustomersRepository customersRepository)
+    CustomersRepository customersRepository,
+    XuiService xuiService)
     : BaseUpdateProcessor(botProperties)
 {
     public override Func<UpdateTypes, Update, SessionContext, bool> Filter  => (type, update, context) =>
@@ -74,10 +76,16 @@ public class PromotionalCodeMessageUpdateProcessor(
         
         if (customerEntity is { Endpoint: not null })
         {
-            //TODO update expiry date in Xray
             customerEntity.Endpoint.ExpiryDate =
                 customerEntity.Endpoint.ExpiryDate.AddDays(codeEntity.Duration.TotalDays);
             await customersRepository.SaveAsync(customerEntity);
+            
+            var xuiClient = await xuiService.GetClientAsync(
+                customerEntity.Endpoint.XrayId, 
+                customerEntity.Endpoint.InboundId,
+                customerEntity.Endpoint.ClientId);
+            xuiClient.ExpiryTime = new DateTimeOffset(customerEntity.Endpoint.ExpiryDate).ToUnixTimeMilliseconds();
+            await xuiService.UpdateClientAsync(customerEntity.Endpoint.XrayId, customerEntity.Endpoint.InboundId, xuiClient);
         }
         
         var applyPromotional = new SendMessageArgs(chatId, $"Промокод применен. Вам добавлено {codeEntity.Duration.TotalDays} дней")
