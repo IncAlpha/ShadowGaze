@@ -20,7 +20,7 @@ public class XuiClientFactory(
         {
             var xray = xrayRepository.GetById(id);
             var httpClient = factory.CreateClient();
-            httpClient.BaseAddress = new Uri($"https://{xray.Host}:{xray.Port}/{xray.Path}");
+            httpClient.BaseAddress = new Uri($"https://{xray.Host}:{xray.Port}/{xray.Path}/");
             return new XuiApiClient(logger, httpClient, cookieContainer, xray);
         });
     }

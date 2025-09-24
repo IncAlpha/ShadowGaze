@@ -5,7 +5,7 @@ namespace ShadowGaze.Core.Services.XUI.Messages;
 
 public class AddClientRequestMessage : HttpRequestMessage
 {
-    public AddClientRequestMessage(int inboundId, ClientDto client): base(HttpMethod.Post, "/panel/api/inbounds/addClient")
+    public AddClientRequestMessage(int inboundId, ClientDto client): base(HttpMethod.Post, "panel/api/inbounds/addClient")
     {
         var inboundSettings = new InboundEnvelopeSettings()
         {

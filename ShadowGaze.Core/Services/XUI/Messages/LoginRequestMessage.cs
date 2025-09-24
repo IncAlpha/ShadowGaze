@@ -1,7 +1,7 @@
 namespace ShadowGaze.Core.Services.XUI.Messages;
 public class LoginRequestMessage : HttpRequestMessage
 {
-    public LoginRequestMessage(string username, string password): base(HttpMethod.Post, "/login")
+    public LoginRequestMessage(string username, string password): base(HttpMethod.Post, "login")
     {
         var body = new List<KeyValuePair<string, string>>
         {
