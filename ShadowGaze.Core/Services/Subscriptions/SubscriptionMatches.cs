@@ -10,7 +10,7 @@ public class SubscriptionMatches
             {
                 Estimate = "Месяц",
                 DurationInMonths = 1, 
-                Amount = 200, 
+                Amount = 200.0, 
                 CentsAmount = 20000
             }
         },
@@ -20,7 +20,7 @@ public class SubscriptionMatches
             {
                 Estimate = "Месяца",
                 DurationInMonths = 3,
-                Amount = 550,
+                Amount = 550.0,
                 CentsAmount = 55000
             }
         },
@@ -30,7 +30,7 @@ public class SubscriptionMatches
             {
                 Estimate = "Месяцев",
                 DurationInMonths = 6,
-                Amount = 1000,
+                Amount = 1000.0,
                 CentsAmount = 100000
             }
         },
@@ -40,7 +40,7 @@ public class SubscriptionMatches
             {
                 Estimate = "Месяцев",
                 DurationInMonths = 12,
-                Amount = 1900,
+                Amount = 1900.0,
                 CentsAmount = 190000
             }
         }
