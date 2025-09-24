@@ -12,8 +12,8 @@ using ShadowGaze.Core.Services.UpdateProcessors;
 using ShadowGaze.Core.Services.UpdateProcessors.CallbackQueries.Accounts;
 using ShadowGaze.Core.Services.UpdateProcessors.CallbackQueries.Endpoints;
 using ShadowGaze.Core.Services.UpdateProcessors.CallbackQueries.Instructions;
+using ShadowGaze.Core.Services.UpdateProcessors.CallbackQueries.PromotionalCodes;
 using ShadowGaze.Core.Services.UpdateProcessors.CallbackQueries.Subscriptions;
-using ShadowGaze.Core.Services.UpdateProcessors.Messages;
 using ShadowGaze.Core.Services.UpdateProcessors.Messages.AdminCommands.AddPlatformInstruction;
 using ShadowGaze.Core.Services.UpdateProcessors.Messages.AdminCommands.GetFileId;
 using ShadowGaze.Core.Services.UpdateProcessors.Messages.MainMenu;
@@ -69,6 +69,10 @@ public static class ServiceCollectionExtensions
                 .AddScoped<BaseUpdateProcessor, SetPlatformProcessor>()
                 .AddScoped<BaseUpdateProcessor, SetDescriptionProcessor>()
                 .AddScoped<BaseUpdateProcessor, SetFileProcessor>()
+                
+                //промокоды
+                .AddScoped<BaseUpdateProcessor, PromotionalCodeCallbackQueryProcessor>()
+                .AddScoped<BaseUpdateProcessor, PromotionalCodeMessageUpdateProcessor>()
             
                 // fileId
                 .AddScoped<BaseUpdateProcessor, FileProcessor>()
@@ -119,7 +123,9 @@ public static class ServiceCollectionExtensions
             .AddScoped<PlatformInstructionsRepository>()
             .AddScoped<BotSectionsRepository>()
             .AddScoped<TelegramFilesRepository>()
-            .AddScoped<PaymentsRepository>();
+            .AddScoped<PaymentsRepository>()
+            .AddScoped<PromotionalCodeRepository>()
+            .AddScoped<PromotionalCodeUsageRepository>();
     }
 
     private static IServiceCollection AddBotOptions(this IServiceCollection services, HostBuilderContext context)
