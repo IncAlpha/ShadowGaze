@@ -29,8 +29,6 @@ public class XuiService(ILogger<XuiService> logger, IXuiClientFactory factory)
             TotalGB = 0,
             ExpiryTime = new DateTimeOffset(expiryDate).ToUnixTimeMilliseconds(),
             Enable = true,
-            TgId = "",
-            SubId = "",
             Reset = 0,
         };
         

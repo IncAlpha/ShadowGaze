@@ -18,10 +18,6 @@ public sealed class ClientDto
     public long ExpiryTime { get; set; }  // unix seconds
     [JsonPropertyName("enable")]
     public bool Enable { get; set; }
-    [JsonPropertyName("tgId")]
-    public string TgId { get; set; } = "";
-    [JsonPropertyName("subId")]
-    public string SubId { get; set; } = "";
     [JsonPropertyName("reset")]
     public int Reset { get; set; }
 }
