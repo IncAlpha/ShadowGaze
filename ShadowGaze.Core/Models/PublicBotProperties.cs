@@ -1,7 +1,5 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Telegram.BotAPI;
-using Telegram.BotAPI.AvailableMethods;
-using Telegram.BotAPI.AvailableTypes;
 using Telegram.BotAPI.GettingUpdates;
 
 namespace ShadowGaze.Core.Models;

@@ -16,17 +16,17 @@ public class BotBackgroundService : BackgroundService
     private readonly IServiceProvider _serviceProvider;
     private readonly IVersionProvider _versionProvider;
     private readonly IDbContextFactory<DatabaseContext> _dbFactory;
-    private readonly ITelegramBotClient _api;
+    private readonly ITelegramBotClient _bot;
 
     public BotBackgroundService(ILogger<BotBackgroundService> logger,
         PublicBotProperties botProperties,
         IServiceProvider serviceProvider,
         IVersionProvider versionProvider,
         IDbContextFactory<DatabaseContext> dbFactory
-        )
+    )
     {
         _logger = logger;
-        _api = botProperties.Bot;
+        _bot = botProperties.Bot;
         _serviceProvider = serviceProvider;
         _versionProvider = versionProvider;
         _dbFactory = dbFactory;
@@ -39,10 +39,11 @@ public class BotBackgroundService : BackgroundService
             await databaseContext.Database.MigrateAsync(cancellationToken: stoppingToken);
         }
         _logger.LogInformation($"Запуск бота [{_versionProvider.FileVersionInfo.FileVersion}]");
-        var updates = (await _api
+        var updates = (await _bot
                 .GetUpdatesAsync(cancellationToken: stoppingToken)
                 .ConfigureAwait(false))
             .ToArray();
+        
         while (!stoppingToken.IsCancellationRequested)
         {
             if (updates.Length != 0)
@@ -52,23 +53,26 @@ public class BotBackgroundService : BackgroundService
                     // the telegram api can send the callback again and throw an exception when trying to process it
                     // Use webhook
                 {
-                    await Parallel.ForEachAsync(updates, stoppingToken,
-                        async (update, token) => await ProcessUpdate(update, token)
-                    );
+                    _ = Parallel.ForEachAsync(updates, stoppingToken,
+                        async (update, token) => await ProcessUpdate(update, token));
                 }
-                catch (BotRequestException e)
+                catch (BotRequestException exception)
                 {
-                    _logger.LogError(e.Message);
+                    _logger.LogError(exception.Message);
+                }
+                catch (Exception exception)
+                {
+                    _logger.LogError(exception.Message);
                 }
 
 
-                updates = (await _api.GetUpdatesAsync(updates[^1].UpdateId + 1, cancellationToken: stoppingToken)
+                updates = (await _bot.GetUpdatesAsync(updates[^1].UpdateId + 1, cancellationToken: stoppingToken)
                         .ConfigureAwait(false))
                     .ToArray();
             }
             else
             {
-                updates = (await _api.GetUpdatesAsync(cancellationToken: stoppingToken).ConfigureAwait(false))
+                updates = (await _bot.GetUpdatesAsync(cancellationToken: stoppingToken).ConfigureAwait(false))
                     .ToArray();
             }
         }
@@ -83,7 +87,7 @@ public class BotBackgroundService : BackgroundService
 
     public override Task StopAsync(CancellationToken cancellationToken)
     {
-        _logger.LogInformation("Worker stopping at: {Time}", DateTimeOffset.Now);
+        _logger.LogInformation($"Worker stopping at: {DateTimeOffset.Now}");
         return base.StopAsync(cancellationToken);
     }
 }

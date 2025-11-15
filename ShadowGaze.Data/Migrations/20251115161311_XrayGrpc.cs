@@ -19,18 +19,17 @@ namespace ShadowGaze.Data.Migrations
                     id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     obsolete = table.Column<bool>(type: "boolean", nullable: false),
-                    tunnel_port = table.Column<int>(type: "integer", nullable: false),
+                    api_uri = table.Column<string>(type: "text", nullable: true),
+                    connection_uri = table.Column<string>(type: "text", nullable: true),
                     inbound_tag = table.Column<string>(type: "text", nullable: true),
                     protocol = table.Column<string>(type: "text", nullable: true),
-                    address = table.Column<string>(type: "text", nullable: true),
-                    port = table.Column<int>(type: "integer", nullable: false),
                     flow = table.Column<string>(type: "text", nullable: true),
                     network = table.Column<string>(type: "text", nullable: true),
                     security = table.Column<string>(type: "text", nullable: true),
                     server_name = table.Column<string>(type: "text", nullable: true),
                     public_key = table.Column<string>(type: "text", nullable: true),
                     short_id = table.Column<string>(type: "text", nullable: true),
-                    connection_tag = table.Column<string>(type: "text", nullable: true)
+                    connection_name = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
                 {

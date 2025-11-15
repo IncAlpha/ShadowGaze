@@ -19,7 +19,7 @@ using ShadowGaze.Core.Services.UpdateProcessors.Messages.AdminCommands.GetFileId
 using ShadowGaze.Core.Services.UpdateProcessors.Messages.AdminCommands.XrayCore;
 using ShadowGaze.Core.Services.UpdateProcessors.Messages.MainMenu;
 using ShadowGaze.Core.Services.UpdateProcessors.Payments;
-using ShadowGaze.Core.Services.XRay;
+using ShadowGaze.Core.Services.Xray;
 using ShadowGaze.Core.Services.XUI;
 using ShadowGaze.Data.Services.Database;
 using ShadowGaze.Data.Services.Database.Instructions;
@@ -43,7 +43,7 @@ public static class ServiceCollectionExtensions
             .AddBotOptions(context)
             .AddRepositories()
             .AddHttp()
-            .AddGRpc()
+            .AddGrpc()
             .AddMiddleware()
             .AddUpdateProcessors();
     }
@@ -51,39 +51,38 @@ public static class ServiceCollectionExtensions
     private static IServiceCollection AddUpdateProcessors(this IServiceCollection services)
     {
         return services
-                .AddScoped<BaseUpdateProcessor, MainMenuCallbackProcessor>()
-                .AddScoped<BaseUpdateProcessor, MainMenuMessageProcessor>()
-                .AddScoped<BaseUpdateProcessor, EndpointsProcessor>()
-                .AddScoped<BaseUpdateProcessor, SubscriptionsCallbackQueryProcessor>()
-                .AddScoped<BaseUpdateProcessor, SelectSubscriptionsCallbackQueryProcessor>()
-                .AddScoped<BaseUpdateProcessor, AccountCallbackQueryProcessor>()
-                .AddScoped<BaseUpdateProcessor, AccountTopUpCallbackQueryProcessor>()
-                
-                // платежи
-                .AddScoped<BaseUpdateProcessor, PreCheckoutQueryProcessor>()
-                .AddScoped<BaseUpdateProcessor, CheckoutMessageProcessor>()
-        
+            .AddScoped<BaseUpdateProcessor, MainMenuCallbackProcessor>()
+            .AddScoped<BaseUpdateProcessor, MainMenuMessageProcessor>()
+            .AddScoped<BaseUpdateProcessor, EndpointsProcessor>()
+            .AddScoped<BaseUpdateProcessor, SubscriptionsCallbackQueryProcessor>()
+            .AddScoped<BaseUpdateProcessor, SelectSubscriptionsCallbackQueryProcessor>()
+            .AddScoped<BaseUpdateProcessor, AccountCallbackQueryProcessor>()
+            .AddScoped<BaseUpdateProcessor, AccountTopUpCallbackQueryProcessor>()
 
-                // инструкции
-                .AddScoped<BaseUpdateProcessor, InstructionsProcessor>()
-                .AddScoped<BaseUpdateProcessor, GetInstructionsProcessor>()
-                .AddScoped<BaseUpdateProcessor, GetInstructionByIdProcessor>()
-                .AddScoped<BaseUpdateProcessor, AddPlatformInstructionProcessor>()
-                .AddScoped<BaseUpdateProcessor, SetPlatformProcessor>()
-                .AddScoped<BaseUpdateProcessor, SetDescriptionProcessor>()
-                .AddScoped<BaseUpdateProcessor, SetFileProcessor>()
-                
-                //промокоды
-                .AddScoped<BaseUpdateProcessor, PromotionalCodeCallbackQueryProcessor>()
-                .AddScoped<BaseUpdateProcessor, PromotionalCodeMessageUpdateProcessor>()
-            
-                // fileId
-                .AddScoped<BaseUpdateProcessor, FileProcessor>()
-                .AddScoped<BaseUpdateProcessor, MediaProcessor>()
-                
-                // управление
-                .AddScoped<BaseUpdateProcessor, SyncXrayProcessor>();
-    } 
+            // платежи
+            .AddScoped<BaseUpdateProcessor, PreCheckoutQueryProcessor>()
+            .AddScoped<BaseUpdateProcessor, CheckoutMessageProcessor>()
+
+            // инструкции
+            .AddScoped<BaseUpdateProcessor, InstructionsProcessor>()
+            .AddScoped<BaseUpdateProcessor, GetInstructionsProcessor>()
+            .AddScoped<BaseUpdateProcessor, GetInstructionByIdProcessor>()
+            .AddScoped<BaseUpdateProcessor, AddPlatformInstructionProcessor>()
+            .AddScoped<BaseUpdateProcessor, SetPlatformProcessor>()
+            .AddScoped<BaseUpdateProcessor, SetDescriptionProcessor>()
+            .AddScoped<BaseUpdateProcessor, SetFileProcessor>()
+
+            //промокоды
+            .AddScoped<BaseUpdateProcessor, PromotionalCodeCallbackQueryProcessor>()
+            .AddScoped<BaseUpdateProcessor, PromotionalCodeMessageUpdateProcessor>()
+
+            // fileId
+            .AddScoped<BaseUpdateProcessor, FileProcessor>()
+            .AddScoped<BaseUpdateProcessor, MediaProcessor>()
+
+            // управление
+            .AddScoped<BaseUpdateProcessor, SyncXrayProcessor>();
+    }
 
     private static IServiceCollection AddMiddleware(this IServiceCollection services)
     {
@@ -91,13 +90,12 @@ public static class ServiceCollectionExtensions
             .AddScoped<IMiddleware, AdminCommandsMiddleware>();
     }
 
-    private static IServiceCollection AddGRpc(this IServiceCollection services)
+    private static IServiceCollection AddGrpc(this IServiceCollection services)
     {
         return services
-            .AddSingleton<XraySync>()
-            // .AddSingleton<XraySyncService>()
             .AddSingleton<IXrayClientFactory, XrayClientFactory>();
     }
+
     private static IServiceCollection AddHttp(this IServiceCollection services)
     {
         return services

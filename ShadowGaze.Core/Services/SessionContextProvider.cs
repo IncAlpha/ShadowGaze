@@ -1,5 +1,4 @@
 using System.Collections.Concurrent;
-using ShadowGaze.Core.Models;
 using ShadowGaze.Core.Models.SessionContexts;
 
 namespace ShadowGaze.Core.Services;

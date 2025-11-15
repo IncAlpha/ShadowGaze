@@ -1,4 +1,4 @@
-namespace ShadowGaze.Core.Services.XRay;
+namespace ShadowGaze.Core.Services.Xray;
 
 public interface ICheckAlive
 {

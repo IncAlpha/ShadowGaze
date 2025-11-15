@@ -12,7 +12,7 @@ using ShadowGaze.Data.Services.Database;
 namespace ShadowGaze.Data.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    [Migration("20251114151111_XrayGrpc")]
+    [Migration("20251115161311_XrayGrpc")]
     partial class XrayGrpc
     {
         /// <inheritdoc />
@@ -157,13 +157,17 @@ namespace ShadowGaze.Data.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("Address")
+                    b.Property<string>("ApiUri")
                         .HasColumnType("text")
-                        .HasColumnName("address");
+                        .HasColumnName("api_uri");
 
-                    b.Property<string>("ConnectionTag")
+                    b.Property<string>("ConnectionName")
                         .HasColumnType("text")
-                        .HasColumnName("connection_tag");
+                        .HasColumnName("connection_name");
+
+                    b.Property<string>("ConnectionUri")
+                        .HasColumnType("text")
+                        .HasColumnName("connection_uri");
 
                     b.Property<string>("Flow")
                         .HasColumnType("text")
@@ -180,10 +184,6 @@ namespace ShadowGaze.Data.Migrations
                     b.Property<bool>("Obsolete")
                         .HasColumnType("boolean")
                         .HasColumnName("obsolete");
-
-                    b.Property<int>("Port")
-                        .HasColumnType("integer")
-                        .HasColumnName("port");
 
                     b.Property<string>("Protocol")
                         .HasColumnType("text")
@@ -204,10 +204,6 @@ namespace ShadowGaze.Data.Migrations
                     b.Property<string>("ShortId")
                         .HasColumnType("text")
                         .HasColumnName("short_id");
-
-                    b.Property<int>("TunnelPort")
-                        .HasColumnType("integer")
-                        .HasColumnName("tunnel_port");
 
                     b.HasKey("Id")
                         .HasName("pk_inbounds");

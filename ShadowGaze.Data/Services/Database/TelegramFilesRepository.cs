@@ -1,5 +1,4 @@
 using Microsoft.EntityFrameworkCore;
-using ShadowGaze.Data.Models.Database;
 using ShadowGaze.Data.Models.Database.TelegramFiles;
 
 namespace ShadowGaze.Data.Services.Database;

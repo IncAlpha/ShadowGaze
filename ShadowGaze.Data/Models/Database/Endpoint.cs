@@ -1,5 +1,3 @@
-using System.ComponentModel.DataAnnotations.Schema;
-
 namespace ShadowGaze.Data.Models.Database;
 
 public class Endpoint : BaseDatabaseModel

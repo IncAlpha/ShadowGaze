@@ -4,7 +4,6 @@ using ShadowGaze.Core.Models.SessionContexts;
 using ShadowGaze.Core.Services.Subscriptions;
 using Telegram.BotAPI.AvailableMethods;
 using Telegram.BotAPI.AvailableTypes;
-using Telegram.BotAPI.Extensions;
 using Telegram.BotAPI.GettingUpdates;
 using Telegram.BotAPI.UpdatingMessages;
 using UpdateTypes = ShadowGaze.Data.Models.TelegramApi.UpdateTypes;

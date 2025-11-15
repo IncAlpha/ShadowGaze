@@ -1,6 +1,5 @@
 using System.Web;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 using ShadowGaze.Core.Models;
 using ShadowGaze.Core.Models.Constants;
 using ShadowGaze.Core.Models.SessionContexts;
@@ -15,9 +14,7 @@ using UpdateTypes = ShadowGaze.Data.Models.TelegramApi.UpdateTypes;
 
 namespace ShadowGaze.Core.Services.UpdateProcessors.CallbackQueries.Endpoints;
 
-public class EndpointsProcessor(
-    ILogger<EndpointsProcessor> logger,
-    PublicBotProperties botProperties,
+public class EndpointsProcessor(PublicBotProperties botProperties,
     CustomersRepository customersRepository,
     InboundRepository inboundRepository,
     ConnectionsRepository connectionsRepository
@@ -98,7 +95,6 @@ public class EndpointsProcessor(
     private string BuildConnectionString(Guid clientId, Inbound inbound)
     {
         var protocol = inbound.Protocol;
-        var host = $"{inbound.Address}:{inbound.Port}";
 
         var queryParams = HttpUtility.ParseQueryString(string.Empty);
         queryParams.Add("encryption", "none");
@@ -109,7 +105,7 @@ public class EndpointsProcessor(
         queryParams.Add("pbk", inbound.PublicKey);
         queryParams.Add("sid", inbound.ShortId);
 
-        return $"{protocol}://{clientId}@{host}?{queryParams}#{inbound.ConnectionTag}";    
+        return $"{protocol}://{clientId}@{inbound.ConnectionUri}?{queryParams}#{inbound.ConnectionName}";    
     }
 
     private SendPhotoArgs GetQrCodeMessageArgs(long chatId, string qrCodeContent)

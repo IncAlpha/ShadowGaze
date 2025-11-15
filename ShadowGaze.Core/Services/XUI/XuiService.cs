@@ -2,7 +2,6 @@ using System.Net.Http.Json;
 using Microsoft.Extensions.Logging;
 using ShadowGaze.Core.Models.XUI;
 using ShadowGaze.Core.Services.XUI.Messages;
-using ShadowGaze.Data.Models.Database;
 
 namespace ShadowGaze.Core.Services.XUI;
 
