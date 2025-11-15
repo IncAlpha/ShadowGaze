@@ -16,8 +16,10 @@ using ShadowGaze.Core.Services.UpdateProcessors.CallbackQueries.PromotionalCodes
 using ShadowGaze.Core.Services.UpdateProcessors.CallbackQueries.Subscriptions;
 using ShadowGaze.Core.Services.UpdateProcessors.Messages.AdminCommands.AddPlatformInstruction;
 using ShadowGaze.Core.Services.UpdateProcessors.Messages.AdminCommands.GetFileId;
+using ShadowGaze.Core.Services.UpdateProcessors.Messages.AdminCommands.XrayCore;
 using ShadowGaze.Core.Services.UpdateProcessors.Messages.MainMenu;
 using ShadowGaze.Core.Services.UpdateProcessors.Payments;
+using ShadowGaze.Core.Services.XRay;
 using ShadowGaze.Core.Services.XUI;
 using ShadowGaze.Data.Services.Database;
 using ShadowGaze.Data.Services.Database.Instructions;
@@ -41,6 +43,7 @@ public static class ServiceCollectionExtensions
             .AddBotOptions(context)
             .AddRepositories()
             .AddHttp()
+            .AddGRpc()
             .AddMiddleware()
             .AddUpdateProcessors();
     }
@@ -77,7 +80,9 @@ public static class ServiceCollectionExtensions
                 // fileId
                 .AddScoped<BaseUpdateProcessor, FileProcessor>()
                 .AddScoped<BaseUpdateProcessor, MediaProcessor>()
-            ;
+                
+                // управление
+                .AddScoped<BaseUpdateProcessor, SyncXrayProcessor>();
     } 
 
     private static IServiceCollection AddMiddleware(this IServiceCollection services)
@@ -86,6 +91,13 @@ public static class ServiceCollectionExtensions
             .AddScoped<IMiddleware, AdminCommandsMiddleware>();
     }
 
+    private static IServiceCollection AddGRpc(this IServiceCollection services)
+    {
+        return services
+            .AddSingleton<XraySync>()
+            // .AddSingleton<XraySyncService>()
+            .AddSingleton<IXrayClientFactory, XrayClientFactory>();
+    }
     private static IServiceCollection AddHttp(this IServiceCollection services)
     {
         return services
@@ -125,7 +137,9 @@ public static class ServiceCollectionExtensions
             .AddScoped<TelegramFilesRepository>()
             .AddScoped<PaymentsRepository>()
             .AddScoped<PromotionalCodeRepository>()
-            .AddScoped<PromotionalCodeUsageRepository>();
+            .AddScoped<PromotionalCodeUsageRepository>()
+            .AddScoped<ConnectionsRepository>()
+            .AddScoped<InboundRepository>();
     }
 
     private static IServiceCollection AddBotOptions(this IServiceCollection services, HostBuilderContext context)

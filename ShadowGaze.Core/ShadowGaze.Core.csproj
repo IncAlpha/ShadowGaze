@@ -17,5 +17,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\ShadowGaze.Data\ShadowGaze.Data.csproj" />
+    <ProjectReference Include="..\ShadowGaze.Protos\ShadowGaze.Protos.csproj" />
   </ItemGroup>
 </Project>

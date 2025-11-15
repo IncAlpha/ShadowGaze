@@ -17,6 +17,10 @@ public sealed class DatabaseContext(DbContextOptions<DatabaseContext> options) :
     public DbSet<Payment> Payments => Set<Payment>();
     public DbSet<PromotionalCode> PromotionalCodes => Set<PromotionalCode>();
     public DbSet<PromotionalCodeUsage> PromotionalCodeUsages =>Set<PromotionalCodeUsage>();
+    public DbSet<Connection> Connections => Set<Connection>();
+    public DbSet<Inbound> Inbounds => Set<Inbound>();
+        
+        
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         ConfigureEndpoints(modelBuilder);
@@ -24,6 +28,7 @@ public sealed class DatabaseContext(DbContextOptions<DatabaseContext> options) :
         ConfigurePayments(modelBuilder);
         ConfigurePromotionalCodes(modelBuilder);
         ConfigurePromotionalCodeUsages(modelBuilder);
+        ConfigureConnection(modelBuilder);
     }
 
     private void ConfigureEndpoints(ModelBuilder modelBuilder)
@@ -111,5 +116,28 @@ public sealed class DatabaseContext(DbContextOptions<DatabaseContext> options) :
             .HasOne(model => model.TelegramFile)
             .WithMany()
             .HasForeignKey(section => section.TelegramFileId);
+    }
+
+    private void ConfigureConnection(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<Connection>()
+            .HasOne<Customer>()
+            .WithMany()
+            .HasForeignKey(connection => connection.CustomerId);
+        
+        modelBuilder.Entity<Connection>()
+            .HasOne<Inbound>()
+            .WithOne()
+            .HasForeignKey<Connection>(connection => connection.VlessInboundId);
+        
+        modelBuilder.Entity<Connection>()
+            .Property(e => e.CreatedAt)
+            .HasColumnType("timestamp without time zone")
+            .HasUtcConversion();
+
+        modelBuilder.Entity<Connection>()
+            .Property(e => e.ExpiryDate)
+            .HasColumnType("timestamp without time zone")
+            .HasUtcConversion();
     }
 }

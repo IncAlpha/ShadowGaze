@@ -1,39 +1,31 @@
 using System.Web;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using ShadowGaze.Core.Models;
-using ShadowGaze.Core.Models.Congifurations;
 using ShadowGaze.Core.Models.Constants;
 using ShadowGaze.Core.Models.SessionContexts;
-using ShadowGaze.Core.Models.XUI;
 using ShadowGaze.Core.Services.Extensions;
 using ShadowGaze.Core.Services.QrCodes;
-using ShadowGaze.Core.Services.XUI;
 using ShadowGaze.Data.Models.Database;
 using ShadowGaze.Data.Services.Database;
 using Telegram.BotAPI.AvailableMethods;
 using Telegram.BotAPI.AvailableTypes;
 using Telegram.BotAPI.GettingUpdates;
-using Telegram.BotAPI.UpdatingMessages;
 using UpdateTypes = ShadowGaze.Data.Models.TelegramApi.UpdateTypes;
 
 namespace ShadowGaze.Core.Services.UpdateProcessors.CallbackQueries.Endpoints;
 
 public class EndpointsProcessor(
     ILogger<EndpointsProcessor> logger,
-    IOptions<XUiOptions> options,
     PublicBotProperties botProperties,
     CustomersRepository customersRepository,
-    EndpointsRepository endpointsRepository,
-    XrayRepository xrayRepository,
-    XuiService xuiService
+    InboundRepository inboundRepository,
+    ConnectionsRepository connectionsRepository
 ) : BaseUpdateProcessor(botProperties)
 {
     public override Func<UpdateTypes, Update, SessionContext, bool> Filter => (type, update, _) =>
         type is UpdateTypes.CallbackQuery && update is { CallbackQuery.Data: CallbackQueriesConstants.Endpoints };
-
-    private readonly XUiOptions _options = options.Value;
-
+    
     public override async Task Process(Update update, SessionContext sessionContext)
     {
         var query = update.CallbackQuery!;
@@ -42,87 +34,44 @@ public class EndpointsProcessor(
         var user = query.From;
         await Bot.AnswerCallbackQueryAsync(new AnswerCallbackQueryArgs(query.Id));
         
-        var customer = await customersRepository.GetOrCreateAsync(user.Id, user.Username);
-        var endpoint = await GetOrCreateEndpointAsync(customer);
-        if (endpoint == null)
-        {
-            await Bot.EditMessageTextAsync(chatId, message.MessageId,
-                "Произошла внутренняя ошибка, обратитесь к специалисту технической поддержки");
-            return;
-        }
-        var connectionString = await GetOrCreateConnectionStringAsync(endpoint, user);
-        if (connectionString == null)
-        {
-            await Bot.EditMessageTextAsync(chatId, message.MessageId,
-                "Произошла внутренняя ошибка, обратитесь к специалисту технической поддержки");
-            return;
-        }
+        var username = string.IsNullOrWhiteSpace(user.Username) ? chatId.ToString() : user.Username;
+        var customer = await customersRepository.GetOrCreateAsync(user.Id, username);
+        var connections = await GetOrCreateConnectionsAsync(customer);
         
-        var qrCodeArgs = GetQrCodeMessageArgs(chatId, connectionString);
-        await Bot.SendPhotoAsync(qrCodeArgs);
+        foreach (var connection in connections)
+        {
+            var qrCodeArgs = GetQrCodeMessageArgs(chatId, connection.ConnectionString);
+            await Bot.SendPhotoAsync(qrCodeArgs);
+        }
         var messageArgs = new SendMessageArgs(chatId, "Следуйте инструкциям по использованию")
         {
             ChatId = chatId,
             ReplyMarkup = GetKeyboard()
         };
         await Bot.SendMessageAsync(messageArgs);
+        
+        foreach (var connection in connections)
+        {
+            await connectionsRepository.SaveAsync(connection);
+        }
     }
-
-    private async Task<Endpoint> GetOrCreateEndpointAsync(Customer customer)
+    
+    private async Task<List<Connection>> GetOrCreateConnectionsAsync(Customer customer)
     {
-        if (customer.EndpointId is not null)
+        var connections = await connectionsRepository.AsQueryable().ToListAsync();
+        if (connections.Count != 0)
         {
-            return await endpointsRepository.GetByIdAsync(customer.EndpointId!.Value);
+            return connections;
         }
-        Client newClient;
-        try
-        { 
-            var xuiClientName = string.IsNullOrWhiteSpace(customer.TelegramName) ? 
-                customer.TelegramId.ToString() : 
-                customer.TelegramName;
-            newClient = await xuiService.AddDefaultClient(_options.XUiConfigurationId, _options.InboundId, xuiClientName);
-        }
-        catch (Exception e)
-        {
-            logger.LogError("Не удалось создать клиента для inbound");
-            return null;
-        }
-
-        var endpoint = new Endpoint
-        {
-            XrayId = _options.XUiConfigurationId,
-            InboundId = _options.InboundId,
-            ClientId = newClient.Id,
-            CreatedAt = DateTime.Now,
-            ExpiryDate = newClient.ExpiryTime
-        };
-        await endpointsRepository.SaveAsync(endpoint);
-        customer.EndpointId = endpoint.Id;
-        await customersRepository.SaveAsync(customer);
-        return endpoint;
+        var inbounds = await inboundRepository
+            .AsQueryable()
+            .Where(i => !i.Obsolete)
+            .ToListAsync();
+        return inbounds
+            .Select(inbound => BuildConnection(inbound, customer))
+            .ToList();
     }
-
-    private async Task<string> GetOrCreateConnectionStringAsync(Endpoint endpoint, User user)
-    {
-        if (endpoint.ConnectionString is not null) return endpoint.ConnectionString;
-        var xray = await xrayRepository.GetByIdAsync(endpoint.XrayId);
-        InboundDto inboundDto;
-        try
-        {
-            var inbound = await xuiService.GetInbound(endpoint.XrayId, _options.InboundId);
-            inboundDto = inbound.Object;
-        }
-        catch (Exception e)
-        {
-            logger.LogError("Не удалось получить inbound");
-            return null;
-        }
-        var connectionString = BuildConnectionString(user, endpoint, xray, inboundDto);
-        endpoint.ConnectionString = connectionString;
-        await endpointsRepository.SaveAsync(endpoint);
-        return endpoint.ConnectionString;
-    }
-
+    
     private InlineKeyboardMarkup GetKeyboard()
     {
         return BuildKeyboard()
@@ -132,25 +81,35 @@ public class EndpointsProcessor(
             .Build();
     }
 
-    private string BuildConnectionString(User user, Endpoint endpoint, Xray xray, InboundDto inbound)
+    private Connection BuildConnection(Inbound inbound, Customer customer)
+    {
+        var guid = Guid.NewGuid();
+        return new Connection
+        {
+            CustomerId = customer.Id,
+            VlessInboundId = inbound.Id,
+            ClientId = guid,
+            ConnectionString = BuildConnectionString(guid, inbound),
+            CreatedAt = DateTime.Now,
+            ExpiryDate = DateTime.Now.AddDays(21).Date
+        };
+    }
+
+    private string BuildConnectionString(Guid clientId, Inbound inbound)
     {
         var protocol = inbound.Protocol;
-        var client = inbound.Settings.Clients.FirstOrDefault(client => client.Id == endpoint.ClientId.ToString())!;
-        var id = client.Id;
-        var host = $"{xray.Host}:443";
-        var flow = client.Flow;
+        var host = $"{inbound.Address}:{inbound.Port}";
 
         var queryParams = HttpUtility.ParseQueryString(string.Empty);
-        queryParams.Add("type", inbound.StreamSettings.Network);
-        queryParams.Add("security", inbound.StreamSettings.Security);
-        queryParams.Add("pbk", inbound.StreamSettings.RealitySettings.Settings.PublicKey);
-        queryParams.Add("fp", inbound.StreamSettings.RealitySettings.Settings.Fingerprint);
-        queryParams.Add("sni", inbound.StreamSettings.RealitySettings.ServerNames[0]);
-        queryParams.Add("sid", inbound.StreamSettings.RealitySettings.ShortIds[0]);
-        queryParams.Add("spx", inbound.StreamSettings.RealitySettings.Settings.SpiderX);
-        queryParams.Add("flow", flow);
+        queryParams.Add("encryption", "none");
+        queryParams.Add("flow", inbound.Flow);
+        queryParams.Add("type", inbound.Network);
+        queryParams.Add("security", inbound.Security);
+        queryParams.Add("sni", inbound.ServerName);
+        queryParams.Add("pbk", inbound.PublicKey);
+        queryParams.Add("sid", inbound.ShortId);
 
-        return $"{protocol}://{id}@{host}?{queryParams}#sg-{user.Username}";
+        return $"{protocol}://{clientId}@{host}?{queryParams}#{inbound.ConnectionTag}";    
     }
 
     private SendPhotoArgs GetQrCodeMessageArgs(long chatId, string qrCodeContent)

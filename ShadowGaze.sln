@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ShadowGaze", "ShadowGaze\Sh
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ShadowGaze.Data", "ShadowGaze.Data\ShadowGaze.Data.csproj", "{612E3A32-6441-498D-8614-85538258AE36}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ShadowGaze.Protos", "ShadowGaze.Protos\ShadowGaze.Protos.csproj", "{3F14ECDD-2CEF-4C6F-BAAC-AC07B4424CCE}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -30,5 +32,9 @@ Global
 		{612E3A32-6441-498D-8614-85538258AE36}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{612E3A32-6441-498D-8614-85538258AE36}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{612E3A32-6441-498D-8614-85538258AE36}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3F14ECDD-2CEF-4C6F-BAAC-AC07B4424CCE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3F14ECDD-2CEF-4C6F-BAAC-AC07B4424CCE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3F14ECDD-2CEF-4C6F-BAAC-AC07B4424CCE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3F14ECDD-2CEF-4C6F-BAAC-AC07B4424CCE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

@@ -3,7 +3,6 @@ using System.Net.Http.Json;
 using Microsoft.Extensions.Logging;
 using ShadowGaze.Core.Models.XUI;
 using ShadowGaze.Core.Services.XUI.Messages;
-using ShadowGaze.Data.Models.Database;
 
 namespace ShadowGaze.Core.Services.XUI;
 
@@ -11,7 +10,7 @@ public class XuiApiClient(
     ILogger<XuiApiClient> logger,
     HttpClient httpClient,
     CookieContainer cookieContainer,
-    Xray xray) : IXuiApiClient
+    Data.Models.Database.Xray xray) : IXuiApiClient
 {
     public async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request)
     {
