@@ -1,7 +1,6 @@
 using ShadowGaze.Core.Models;
 using ShadowGaze.Core.Models.SessionContexts;
 using ShadowGaze.Core.Services.UpdateProcessors.Messages.MainMenu;
-using ShadowGaze.Core.Services.XUI;
 using ShadowGaze.Data.Models.Database;
 using ShadowGaze.Data.Services.Database;
 using Telegram.BotAPI.GettingUpdates;
@@ -13,8 +12,7 @@ public class CheckoutMessageProcessor(
     PublicBotProperties botProperties,
     CustomersRepository customersRepository,
     BotSectionsRepository botSectionsRepository,
-    PaymentsRepository paymentsRepository,
-    XuiService xuiService) 
+    PaymentsRepository paymentsRepository) 
     : BaseMainMenuProcessor(botProperties, customersRepository, botSectionsRepository)
 {
     private readonly CustomersRepository _customersRepository = customersRepository;
@@ -25,7 +23,7 @@ public class CheckoutMessageProcessor(
     {
         var successfulPayment = update.Message!.SuccessfulPayment!;
         var userTelegramId = update.Message.From!.Id;
-        var customer = await _customersRepository.GetByTelegramIdWithEndpointAsync(userTelegramId);
+        var customer = await _customersRepository.GetByTelegramIdAsync(userTelegramId);
         
         await paymentsRepository.SaveAsync(new Payment()
         {
@@ -38,19 +36,12 @@ public class CheckoutMessageProcessor(
             TelegramPaymentChargeId = successfulPayment.TelegramPaymentChargeId,
         });
         
-        if (int.TryParse(successfulPayment.InvoicePayload, out var monthNumber) && customer is { Endpoint: not null })
+        if (int.TryParse(successfulPayment.InvoicePayload, out var monthNumber) && customer is not null)
         {
-            customer.Endpoint.ExpiryDate = customer.Endpoint.ExpiryDate < DateTime.Now
+            customer.ExpiryDate = customer.ExpiryDate < DateTime.Now
                 ? DateTime.Now.AddMonths(monthNumber)
-                : customer.Endpoint.ExpiryDate.AddMonths(monthNumber);
-            await _customersRepository.SaveAsync(customer);
-
-            var xuiClient = await xuiService.GetClientAsync(
-                customer.Endpoint.XrayId, 
-                customer.Endpoint.InboundId,
-                customer.Endpoint.ClientId);
-            xuiClient.ExpiryTime = new DateTimeOffset(customer.Endpoint.ExpiryDate).ToUnixTimeMilliseconds();
-            await xuiService.UpdateClientAsync(customer.Endpoint.XrayId, customer.Endpoint.InboundId, xuiClient);
+                : customer.ExpiryDate.AddMonths(monthNumber);
+            await _customersRepository.SaveAsync(customer); 
         }
         
     }

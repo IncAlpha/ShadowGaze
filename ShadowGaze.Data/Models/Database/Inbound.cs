@@ -15,3 +15,9 @@ public class Inbound: BaseDatabaseModel
     public string ShortId  { get; set; }
     public string ConnectionName { get; set; }
 }
+
+public class ConnectionButton : BaseDatabaseModel
+{
+    public string ButtonName { get; set; }
+    public int InboundId { get; set; }
+}

@@ -9,8 +9,7 @@ using ShadowGaze.Core.Models.Congifurations;
 using ShadowGaze.Core.Services.Middlewares;
 using ShadowGaze.Core.Services.Subscriptions;
 using ShadowGaze.Core.Services.UpdateProcessors;
-using ShadowGaze.Core.Services.UpdateProcessors.CallbackQueries.Accounts;
-using ShadowGaze.Core.Services.UpdateProcessors.CallbackQueries.Endpoints;
+using ShadowGaze.Core.Services.UpdateProcessors.CallbackQueries.Connections;
 using ShadowGaze.Core.Services.UpdateProcessors.CallbackQueries.Instructions;
 using ShadowGaze.Core.Services.UpdateProcessors.CallbackQueries.PromotionalCodes;
 using ShadowGaze.Core.Services.UpdateProcessors.CallbackQueries.Subscriptions;
@@ -20,7 +19,6 @@ using ShadowGaze.Core.Services.UpdateProcessors.Messages.AdminCommands.XrayCore;
 using ShadowGaze.Core.Services.UpdateProcessors.Messages.MainMenu;
 using ShadowGaze.Core.Services.UpdateProcessors.Payments;
 using ShadowGaze.Core.Services.Xray;
-using ShadowGaze.Core.Services.XUI;
 using ShadowGaze.Data.Services.Database;
 using ShadowGaze.Data.Services.Database.Instructions;
 
@@ -36,8 +34,6 @@ public static class ServiceCollectionExtensions
             .AddSingleton<PublicBotProperties>()
             .AddSingleton<SessionContextProvider>()
             .AddScoped<GeneralUpdateProcessor>()
-            .AddSingleton<XuiService>()
-            .AddSingleton<IXuiClientFactory, XuiClientFactory>()
             .AddSingleton<SubscriptionMatches>()
             .AddDatabase(context)
             .AddBotOptions(context)
@@ -53,11 +49,11 @@ public static class ServiceCollectionExtensions
         return services
             .AddScoped<BaseUpdateProcessor, MainMenuCallbackProcessor>()
             .AddScoped<BaseUpdateProcessor, MainMenuMessageProcessor>()
-            .AddScoped<BaseUpdateProcessor, EndpointsProcessor>()
+            .AddScoped<BaseUpdateProcessor, MainConnectionProcessor>()
+            .AddScoped<BaseUpdateProcessor, ConnectionsListProcessor>()
+            .AddScoped<BaseUpdateProcessor, ConnectionForInboundProcessor>()
             .AddScoped<BaseUpdateProcessor, SubscriptionsCallbackQueryProcessor>()
             .AddScoped<BaseUpdateProcessor, SelectSubscriptionsCallbackQueryProcessor>()
-            .AddScoped<BaseUpdateProcessor, AccountCallbackQueryProcessor>()
-            .AddScoped<BaseUpdateProcessor, AccountTopUpCallbackQueryProcessor>()
 
             // платежи
             .AddScoped<BaseUpdateProcessor, PreCheckoutQueryProcessor>()
@@ -128,8 +124,6 @@ public static class ServiceCollectionExtensions
     private static IServiceCollection AddRepositories(this IServiceCollection services)
     {
         return services.AddScoped<CustomersRepository>()
-            .AddScoped<EndpointsRepository>()
-            .AddScoped<XrayRepository>()
             .AddScoped<PlatformInstructionsRepository>()
             .AddScoped<BotSectionsRepository>()
             .AddScoped<TelegramFilesRepository>()
@@ -137,11 +131,14 @@ public static class ServiceCollectionExtensions
             .AddScoped<PromotionalCodeRepository>()
             .AddScoped<PromotionalCodeUsageRepository>()
             .AddScoped<ConnectionsRepository>()
-            .AddScoped<InboundRepository>();
+            .AddScoped<InboundRepository>()
+            .AddScoped<InboundButtonRepository>();
     }
 
     private static IServiceCollection AddBotOptions(this IServiceCollection services, HostBuilderContext context)
     {
-        return services.Configure<XUiOptions>(context.Configuration.GetSection(nameof(XUiOptions)));
+        return services
+            .Configure<XUiOptions>(context.Configuration.GetSection(nameof(XUiOptions)))
+            .Configure<ConnectionsOptions>(context.Configuration.GetSection(nameof(ConnectionsOptions)));
     }
 }

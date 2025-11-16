@@ -17,7 +17,8 @@ public class SyncXrayProcessor(
     PublicBotProperties botProperties,
     InboundRepository inboundRepository,
     IXrayClientFactory xrayClientFactory,
-    CustomersRepository customersRepository
+    CustomersRepository customersRepository,
+    ConnectionsRepository connectionsRepository
 ) : BaseUpdateProcessor(botProperties)
 {
     public override Func<UpdateTypes, Update, SessionContext, bool> Filter => (type, update, _) =>
@@ -27,8 +28,7 @@ public class SyncXrayProcessor(
     {
         var localUsers = await customersRepository
             .AsQueryable()
-            .Include(c => c.Endpoint)
-            .Where(e => e.Endpoint.ExpiryDate > DateTime.Now)
+            .Where(e => e.ExpiryDate > DateTime.Now)
             .ToListAsync();
 
         var inbounds = await inboundRepository
@@ -48,20 +48,24 @@ public class SyncXrayProcessor(
         var message = new GetInboundUsersMessage(inbound.InboundTag);
         using var timeoutSource = new CancellationTokenSource(TimeSpan.FromSeconds(5));
         var remoteEndpoint = await client.GetData(message, timeoutSource.Token);
-
+        var localConnections = await connectionsRepository
+            .AsQueryable()
+            .Where(c => c.VlessInboundId == inbound.Id)
+            .ToListAsync();
+        
         // список подключений на пользователей
-        var toAdd = localEndpoints
-            .Where(l => remoteEndpoint.All(r => r.Id != l.Endpoint.ClientId))
+        var toAdd = localConnections
+            .Where(l => remoteEndpoint.All(r => r.Id != l.ClientId))
             .ToList();
         var toRemove = remoteEndpoint
-            .Where(r => localEndpoints.All(l => l.Endpoint.ClientId != r.Id))
+            .Where(r => localConnections.All(l => l.ClientId != r.Id))
             .ToList();
 
         foreach (var item in toAdd)
         {
-            var addUser = new AddUserMessage(inbound.InboundTag, item.TelegramName, item.Endpoint.ClientId);
+            var addUser = new AddUserMessage(inbound.InboundTag, item.Email, item.ClientId);
             await client.SendMessage(addUser, timeoutSource.Token);
-            logger.LogInformation($"Adding X-ray user {item.TelegramName} at {inbound.ApiUri}");
+            logger.LogInformation($"Adding X-ray user {item.Email} at {inbound.ApiUri}");
         }
 
         foreach (var item in toRemove)

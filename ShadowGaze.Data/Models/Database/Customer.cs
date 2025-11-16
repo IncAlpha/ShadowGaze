@@ -4,7 +4,6 @@ public class Customer : BaseDatabaseModel
 {
     public string TelegramName { get; set; } = string.Empty;
     public long TelegramId { get; set; }
-    public double Balance { get; set; }
-    public int? EndpointId { get; set; }
-    public Endpoint Endpoint { get; set; }
+    public DateTime CreatedAt { get; set; }
+    public DateTime ExpiryDate { get; set; }
 }

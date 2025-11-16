@@ -17,20 +17,13 @@ public class CustomersRepository(DatabaseContext context) : BaseModelRepository<
                 Id = 0,
                 TelegramId = id,
                 TelegramName = username,
-                Balance = 0,
-                EndpointId = null
+                CreatedAt = DateTime.Now,
+                ExpiryDate = DateTime.Now.AddDays(21).Date
             };
             await DatabaseContext.Customers.AddAsync(customer);
             await DatabaseContext.SaveChangesAsync();
         }
         return customer;
-    }
-
-    public async Task<Customer> GetByTelegramIdWithEndpointAsync(long id)
-    {
-        return await DatabaseContext.Customers
-            .Include(_ => _.Endpoint)
-            .FirstOrDefaultAsync(c => c.TelegramId == id);   
     }
     
     public async Task<Customer> GetByTelegramIdAsync(long id)

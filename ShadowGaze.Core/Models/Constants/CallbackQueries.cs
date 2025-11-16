@@ -9,6 +9,8 @@ public static class CallbackQueriesConstants
     public const string Endpoints = "endpoints";
     public const string Accounts = "accounts";
     public const string PromotionalCodes = "promotionalcode";
+    public const string ConnectionsList = "connectionslist";
+    public const string ConnectionForInbound = "connectionforinbound";
     
     public const string AboutAs = "about";
     public const string Referrals = "referrals";

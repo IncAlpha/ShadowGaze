@@ -34,7 +34,7 @@ public abstract class BaseMainMenuProcessor(
             await Bot.AnswerCallbackQueryAsync(new AnswerCallbackQueryArgs(update.CallbackQuery.Id));
         }
 
-        _customer = await customersRepository.GetByTelegramIdWithEndpointAsync(userId);
+        _customer = await customersRepository.GetByTelegramIdAsync(userId);
         if (ExistUser())
         {
             await AnswerExistUser(chatId);
@@ -54,7 +54,7 @@ public abstract class BaseMainMenuProcessor(
 
     private async Task AnswerExistUser(long chatId)
     {
-        var endDate = _customer.Endpoint.ExpiryDate;
+        var endDate = _customer.ExpiryDate;
         var text = $"Остаток дней: {(endDate - DateTime.Now).Days}\nДата окончания: {endDate:dd-MMMM-yyyy}";
 
         var header = await sectionsRepository.GetByNameAsync("main_menu");
@@ -106,10 +106,10 @@ public abstract class BaseMainMenuProcessor(
 
     private bool ExistUser()
     {
-        return !(_customer == null || _customer.Endpoint == null);
+        return _customer != null;
     }
 
-    protected InlineKeyboardMarkup BuildMainMenuKeyboard()
+    private InlineKeyboardMarkup BuildMainMenuKeyboard()
     {
         return BuildKeyboard()
             .AppendCallbackData("Proxy", CallbackQueriesConstants.Endpoints)
