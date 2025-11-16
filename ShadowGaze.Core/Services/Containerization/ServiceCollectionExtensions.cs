@@ -89,7 +89,9 @@ public static class ServiceCollectionExtensions
     private static IServiceCollection AddGrpc(this IServiceCollection services)
     {
         return services
-            .AddSingleton<IXrayClientFactory, XrayClientFactory>();
+            .AddScoped<XrayService>()
+            .AddSingleton<IXrayClientFactory, XrayClientFactory>()
+            .AddHostedService<XraySyncService>();
     }
 
     private static IServiceCollection AddHttp(this IServiceCollection services)

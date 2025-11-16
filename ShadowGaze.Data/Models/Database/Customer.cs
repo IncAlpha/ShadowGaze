@@ -6,4 +6,5 @@ public class Customer : BaseDatabaseModel
     public long TelegramId { get; set; }
     public DateTime CreatedAt { get; set; }
     public DateTime ExpiryDate { get; set; }
+    public Guid ClientId { get; set; }
 }

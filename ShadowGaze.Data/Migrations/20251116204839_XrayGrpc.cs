@@ -34,6 +34,13 @@ namespace ShadowGaze.Data.Migrations
                 name: "endpoint_id",
                 table: "customers");
 
+            migrationBuilder.AddColumn<Guid>(
+                name: "client_id",
+                table: "customers",
+                type: "uuid",
+                nullable: false,
+                defaultValue: new Guid("00000000-0000-0000-0000-000000000000"));
+
             migrationBuilder.AddColumn<DateTime>(
                 name: "created_at",
                 table: "customers",
@@ -100,8 +107,6 @@ namespace ShadowGaze.Data.Migrations
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     customer_id = table.Column<int>(type: "integer", nullable: false),
                     vless_inbound_id = table.Column<int>(type: "integer", nullable: false),
-                    client_id = table.Column<Guid>(type: "uuid", nullable: false),
-                    email = table.Column<string>(type: "text", nullable: true),
                     connection_string = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
@@ -150,6 +155,10 @@ namespace ShadowGaze.Data.Migrations
 
             migrationBuilder.DropTable(
                 name: "inbounds");
+
+            migrationBuilder.DropColumn(
+                name: "client_id",
+                table: "customers");
 
             migrationBuilder.DropColumn(
                 name: "created_at",

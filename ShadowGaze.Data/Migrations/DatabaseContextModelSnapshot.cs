@@ -31,10 +31,6 @@ namespace ShadowGaze.Data.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<Guid>("ClientId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("client_id");
-
                     b.Property<string>("ConnectionString")
                         .HasColumnType("text")
                         .HasColumnName("connection_string");
@@ -42,10 +38,6 @@ namespace ShadowGaze.Data.Migrations
                     b.Property<int>("CustomerId")
                         .HasColumnType("integer")
                         .HasColumnName("customer_id");
-
-                    b.Property<string>("Email")
-                        .HasColumnType("text")
-                        .HasColumnName("email");
 
                     b.Property<int>("VlessInboundId")
                         .HasColumnType("integer")
@@ -99,6 +91,10 @@ namespace ShadowGaze.Data.Migrations
                         .HasColumnName("id");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<Guid>("ClientId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("client_id");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp without time zone")

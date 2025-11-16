@@ -42,14 +42,11 @@ public abstract class SendConnectionProcessor(
 
     private Connection BuildConnection(Inbound inbound, Customer customer)
     {
-        var guid = Guid.NewGuid();
         return new Connection
         {
             CustomerId = customer.Id,
             VlessInboundId = inbound.Id,
-            ClientId = guid,
-            Email = customer.TelegramName ?? guid.ToString(),
-            ConnectionString = BuildConnectionString(guid, inbound)
+            ConnectionString = BuildConnectionString(customer.ClientId, inbound)
         };
     }
 

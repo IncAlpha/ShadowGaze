@@ -18,7 +18,8 @@ public class CustomersRepository(DatabaseContext context) : BaseModelRepository<
                 TelegramId = id,
                 TelegramName = username,
                 CreatedAt = DateTime.Now,
-                ExpiryDate = DateTime.Now.AddDays(21).Date
+                ExpiryDate = DateTime.Now.AddDays(21).Date,
+                ClientId = Guid.NewGuid()
             };
             await DatabaseContext.Customers.AddAsync(customer);
             await DatabaseContext.SaveChangesAsync();
