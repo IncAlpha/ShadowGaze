@@ -15,7 +15,7 @@ public class MainConnectionProcessor(
     PublicBotProperties botProperties,
     ILogger<MainConnectionProcessor> logger,
     CustomersRepository customersRepository,
-    InboundRepository inboundRepository,
+    InboundConfigurationRepository inboundConfigurationRepository,
     ConnectionsRepository connectionsRepository,
     IOptions<ConnectionsOptions> connectionsOptions
 ) : SendConnectionProcessor(connectionsRepository, botProperties)
@@ -34,7 +34,7 @@ public class MainConnectionProcessor(
         var username = string.IsNullOrWhiteSpace(user.Username) ? chatId.ToString() : user.Username;
         var customer = await customersRepository.GetOrCreateAsync(user.Id, username);
         
-        var mainInbound = await inboundRepository.GetByNameAsync(connectionsOptions.Value.MainConnectionName);
+        var mainInbound = await inboundConfigurationRepository.GetByNameAsync(connectionsOptions.Value.MainConnectionName);
         if (mainInbound == null)
         {
             logger.LogError($"Not found main inbound with name {connectionsOptions.Value.MainConnectionName}");

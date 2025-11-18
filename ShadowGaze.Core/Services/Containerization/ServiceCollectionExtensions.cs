@@ -133,8 +133,9 @@ public static class ServiceCollectionExtensions
             .AddScoped<PromotionalCodeRepository>()
             .AddScoped<PromotionalCodeUsageRepository>()
             .AddScoped<ConnectionsRepository>()
-            .AddScoped<InboundRepository>()
-            .AddScoped<InboundButtonRepository>();
+            .AddScoped<InboundConfigurationRepository>()
+            .AddScoped<InboundButtonRepository>()
+            .AddScoped<XrayApiRepository>();
     }
 
     private static IServiceCollection AddBotOptions(this IServiceCollection services, HostBuilderContext context)

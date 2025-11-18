@@ -12,7 +12,7 @@ public class ConnectionForInboundProcessor(
     PublicBotProperties botProperties,
     CustomersRepository customersRepository,
     ConnectionsRepository connectionsRepository,
-    InboundRepository inboundRepository) : SendConnectionProcessor(connectionsRepository, botProperties)
+    InboundConfigurationRepository inboundConfigurationRepository) : SendConnectionProcessor(connectionsRepository, botProperties)
 {
     public override Func<UpdateTypes, Update, SessionContext, bool> Filter => (type, update, _) =>
         type is UpdateTypes.CallbackQuery &&
@@ -31,7 +31,7 @@ public class ConnectionForInboundProcessor(
         
         var username = string.IsNullOrWhiteSpace(user.Username) ? chatId.ToString() : user.Username;
         var customer = await customersRepository.GetOrCreateAsync(user.Id, username);
-        var inbound = await inboundRepository.GetByIdAsync(inboundId);
+        var inbound = await inboundConfigurationRepository.GetByIdAsync(inboundId);
         
         await SendMessage(chatId, inbound, customer);
     }

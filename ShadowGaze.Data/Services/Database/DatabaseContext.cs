@@ -18,7 +18,8 @@ public sealed class DatabaseContext(DbContextOptions<DatabaseContext> options) :
     public DbSet<PromotionalCode> PromotionalCodes => Set<PromotionalCode>();
     public DbSet<PromotionalCodeUsage> PromotionalCodeUsages =>Set<PromotionalCodeUsage>();
     public DbSet<Connection> Connections => Set<Connection>();
-    public DbSet<Inbound> Inbounds => Set<Inbound>();
+    public DbSet<ConnectionConfiguration> ConnectionConfigurations => Set<ConnectionConfiguration>();
+    public DbSet<XrayApi> XrayApis => Set<XrayApi>();
     public DbSet<ConnectionButton> ConnectionButtons => Set<ConnectionButton>();
         
         
@@ -112,7 +113,7 @@ public sealed class DatabaseContext(DbContextOptions<DatabaseContext> options) :
             .HasForeignKey(connection => connection.CustomerId);
         
         modelBuilder.Entity<Connection>()
-            .HasOne<Inbound>()
+            .HasOne<ConnectionConfiguration>()
             .WithOne()
             .HasForeignKey<Connection>(connection => connection.VlessInboundId);
     }
@@ -120,8 +121,8 @@ public sealed class DatabaseContext(DbContextOptions<DatabaseContext> options) :
     private void ConfigureConnectionButtons(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<ConnectionButton>()
-            .HasOne<Inbound>()
+            .HasOne<ConnectionConfiguration>()
             .WithOne()
-            .HasForeignKey<ConnectionButton>(ib => ib.InboundId);
+            .HasForeignKey<ConnectionButton>(cb => cb.ConnectionConfigurationId);
     }
 }

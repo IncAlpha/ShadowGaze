@@ -10,26 +10,26 @@ namespace ShadowGaze.Core.Services.Xray;
 public class XrayService(
     ILogger<SyncXrayProcessor> logger,
     IXrayClientFactory xrayClientFactory,
-    InboundRepository inboundRepository,
+    XrayApiRepository xrayApiRepository,
     CustomersRepository customersRepository)
 {
     public async Task AddUser(Customer user)
     {
-        var inbounds = await inboundRepository
+        var apis = await xrayApiRepository
             .AsQueryable()
             .Where(i => i.Obsolete == false)
             .ToListAsync();
         
-        var syncTasks = inbounds.Select(inbound => AddUserAsync(user, inbound))
+        var syncTasks = apis.Select(api => AddUserAsync(user, api))
             .ToArray();
         await Task.WhenAll(syncTasks);
         logger.LogInformation("Xrays synchronized ");
     }
 
-    private async Task AddUserAsync(Customer user, Inbound inbound)
+    private async Task AddUserAsync(Customer user, XrayApi xrayApi)
     {
-        var client = xrayClientFactory.GetClient(new Uri($"{inbound.ApiUri}"));
-        var message = new GetInboundUsersMessage(inbound.InboundTag);
+        var client = xrayClientFactory.GetClient(new Uri($"{xrayApi.ApiUri}"));
+        var message = new GetInboundUsersMessage(xrayApi.InboundTag);
         using var timeoutSource = new CancellationTokenSource(TimeSpan.FromSeconds(5));
         var remoteEndpoint = await client.GetData(message, timeoutSource.Token);
 
@@ -37,9 +37,9 @@ public class XrayService(
         {
             return;
         }
-        var addUser = new AddUserMessage(inbound.InboundTag, user.TelegramName, user.ClientId);
+        var addUser = new AddUserMessage(xrayApi.InboundTag, user.TelegramName, user.ClientId);
         await client.SendMessage(addUser, timeoutSource.Token);
-        logger.LogInformation($"Adding X-ray user {user.TelegramName} at {inbound.ApiUri}");
+        logger.LogInformation($"Adding X-ray user {user.TelegramName} at {xrayApi.ApiUri}");
     }
 
     public async Task SyncAsync()
@@ -49,21 +49,21 @@ public class XrayService(
             .Where(e => e.ExpiryDate > DateTime.Now)
             .ToListAsync();
 
-        var inbounds = await inboundRepository
+        var apis = await xrayApiRepository
             .AsQueryable()
             .Where(i => i.Obsolete == false)
             .ToListAsync();
 
-        var syncTasks = inbounds.Select(inbound => SyncXrayAsync(localUsers, inbound))
+        var syncTasks = apis.Select(api => SyncXrayAsync(localUsers, api))
             .ToArray();
         await Task.WhenAll(syncTasks);
         logger.LogInformation("Xrays synchronized ");
     }
     
-    private async Task SyncXrayAsync(List<Customer> localUsers, Inbound inbound)
+    private async Task SyncXrayAsync(List<Customer> localUsers, XrayApi xrayApi)
     {
-        var client = xrayClientFactory.GetClient(new Uri($"{inbound.ApiUri}"));
-        var message = new GetInboundUsersMessage(inbound.InboundTag);
+        var client = xrayClientFactory.GetClient(new Uri($"{xrayApi.ApiUri}"));
+        var message = new GetInboundUsersMessage(xrayApi.InboundTag);
         using var timeoutSource = new CancellationTokenSource(TimeSpan.FromSeconds(5));
         var remoteEndpoint = await client.GetData(message, timeoutSource.Token);
         
@@ -77,16 +77,16 @@ public class XrayService(
 
         foreach (var item in toAdd)
         {
-            var addUser = new AddUserMessage(inbound.InboundTag, item.TelegramName, item.ClientId);
+            var addUser = new AddUserMessage(xrayApi.InboundTag, item.TelegramName, item.ClientId);
             await client.SendMessage(addUser, timeoutSource.Token);
-            logger.LogInformation($"Adding X-ray user {item.TelegramName} at {inbound.ApiUri}");
+            logger.LogInformation($"Adding X-ray user {item.TelegramName} at {xrayApi.ApiUri}");
         }
 
         foreach (var item in toRemove)
         {
             // var deleteUser = new RemoveUserMessage(inboundTag, item.Email);
             // await client.SendMessage(deleteUser);
-            logger.LogInformation($"Remove X-ray user {item.Email} at {inbound.ApiUri}");
+            logger.LogInformation($"Remove X-ray user {item.Email} at {xrayApi.ApiUri}");
         }
     }
 }

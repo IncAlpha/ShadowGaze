@@ -28,7 +28,7 @@ public class ConnectionsListProcessor(
         foreach (var button in buttons)
         {
             builder
-                .AppendCallbackData(button.ButtonName, $"{CallbackQueriesConstants.ConnectionForInbound}_{button.InboundId}")
+                .AppendCallbackData(button.ButtonName, $"{CallbackQueriesConstants.ConnectionForInbound}_{button.ConnectionConfigurationId}")
                 .AppendRow();   
         }
         var messageArgs = new SendMessageArgs(chatId, "Выберите желаемую страну подключения")

@@ -14,9 +14,9 @@ public abstract class SendConnectionProcessor(
     PublicBotProperties botProperties
 ) : BaseUpdateProcessor(botProperties)
 {
-    protected async Task SendMessage(long chatId, Inbound inbound, Customer customer)
+    protected async Task SendMessage(long chatId, ConnectionConfiguration connectionConfiguration, Customer customer)
     {
-        var connection = await connectionsRepository.GetByInboundId(inbound.Id) ?? BuildConnection(inbound, customer);
+        var connection = await connectionsRepository.GetByInboundId(connectionConfiguration.Id) ?? BuildConnection(connectionConfiguration, customer);
         var qrCodeArgs = GetQrCodeMessageArgs(chatId, connection.ConnectionString);
         await Bot.SendPhotoAsync(qrCodeArgs);
         
@@ -40,30 +40,30 @@ public abstract class SendConnectionProcessor(
             .Build();
     }
 
-    private Connection BuildConnection(Inbound inbound, Customer customer)
+    private Connection BuildConnection(ConnectionConfiguration connectionConfiguration, Customer customer)
     {
         return new Connection
         {
             CustomerId = customer.Id,
-            VlessInboundId = inbound.Id,
-            ConnectionString = BuildConnectionString(customer.ClientId, inbound)
+            VlessInboundId = connectionConfiguration.Id,
+            ConnectionString = BuildConnectionString(customer.ClientId, connectionConfiguration)
         };
     }
 
-    private string BuildConnectionString(Guid clientId, Inbound inbound)
+    private string BuildConnectionString(Guid clientId, ConnectionConfiguration connectionConfiguration)
     {
-        var protocol = inbound.Protocol;
+        var protocol = connectionConfiguration.Protocol;
 
         var queryParams = HttpUtility.ParseQueryString(string.Empty);
         queryParams.Add("encryption", "none");
-        queryParams.Add("flow", inbound.Flow);
-        queryParams.Add("type", inbound.Network);
-        queryParams.Add("security", inbound.Security);
-        queryParams.Add("sni", inbound.ServerName);
-        queryParams.Add("pbk", inbound.PublicKey);
-        queryParams.Add("sid", inbound.ShortId);
+        queryParams.Add("flow", connectionConfiguration.Flow);
+        queryParams.Add("type", connectionConfiguration.Network);
+        queryParams.Add("security", connectionConfiguration.Security);
+        queryParams.Add("sni", connectionConfiguration.ServerName);
+        queryParams.Add("pbk", connectionConfiguration.PublicKey);
+        queryParams.Add("sid", connectionConfiguration.ShortId);
 
-        return $"{protocol}://{clientId}@{inbound.ConnectionUri}?{queryParams}#{inbound.ConnectionName}";    
+        return $"{protocol}://{clientId}@{connectionConfiguration.ConnectionUri}?{queryParams}#{connectionConfiguration.ConnectionName}";    
     }
 
     private SendPhotoArgs GetQrCodeMessageArgs(long chatId, string qrCodeContent)

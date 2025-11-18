@@ -1,9 +1,10 @@
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
 namespace ShadowGaze.Core.Services.Xray;
 
-public class XraySyncService(ILogger<XraySyncService> logger, XrayService xrayService) : BackgroundService
+public class XraySyncService(ILogger<XraySyncService> logger, IServiceProvider provider) : BackgroundService
 {
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
@@ -18,6 +19,8 @@ public class XraySyncService(ILogger<XraySyncService> logger, XrayService xraySe
             try
             {
                 await Task.Delay(delay, stoppingToken);
+                using var scope = provider.CreateScope();
+                var xrayService = scope.ServiceProvider.GetRequiredService<XrayService>();
                 await xrayService.SyncAsync();
             }
             catch (TaskCanceledException)

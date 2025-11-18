@@ -12,7 +12,7 @@ using ShadowGaze.Data.Services.Database;
 namespace ShadowGaze.Data.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    [Migration("20251116204839_XrayGrpc")]
+    [Migration("20251118210619_XrayGrpc")]
     partial class XrayGrpc
     {
         /// <inheritdoc />
@@ -72,18 +72,69 @@ namespace ShadowGaze.Data.Migrations
                         .HasColumnType("text")
                         .HasColumnName("button_name");
 
-                    b.Property<int>("InboundId")
+                    b.Property<int>("ConnectionConfigurationId")
                         .HasColumnType("integer")
-                        .HasColumnName("inbound_id");
+                        .HasColumnName("connection_configuration_id");
 
                     b.HasKey("Id")
                         .HasName("pk_connection_buttons");
 
-                    b.HasIndex("InboundId")
+                    b.HasIndex("ConnectionConfigurationId")
                         .IsUnique()
-                        .HasDatabaseName("ix_connection_buttons_inbound_id");
+                        .HasDatabaseName("ix_connection_buttons_connection_configuration_id");
 
                     b.ToTable("connection_buttons", (string)null);
+                });
+
+            modelBuilder.Entity("ShadowGaze.Data.Models.Database.ConnectionConfiguration", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("ConnectionName")
+                        .HasColumnType("text")
+                        .HasColumnName("connection_name");
+
+                    b.Property<string>("ConnectionUri")
+                        .HasColumnType("text")
+                        .HasColumnName("connection_uri");
+
+                    b.Property<string>("Flow")
+                        .HasColumnType("text")
+                        .HasColumnName("flow");
+
+                    b.Property<string>("Network")
+                        .HasColumnType("text")
+                        .HasColumnName("network");
+
+                    b.Property<string>("Protocol")
+                        .HasColumnType("text")
+                        .HasColumnName("protocol");
+
+                    b.Property<string>("PublicKey")
+                        .HasColumnType("text")
+                        .HasColumnName("public_key");
+
+                    b.Property<string>("Security")
+                        .HasColumnType("text")
+                        .HasColumnName("security");
+
+                    b.Property<string>("ServerName")
+                        .HasColumnType("text")
+                        .HasColumnName("server_name");
+
+                    b.Property<string>("ShortId")
+                        .HasColumnType("text")
+                        .HasColumnName("short_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_connection_configurations");
+
+                    b.ToTable("connection_configurations", (string)null);
                 });
 
             modelBuilder.Entity("ShadowGaze.Data.Models.Database.Customer", b =>
@@ -119,69 +170,6 @@ namespace ShadowGaze.Data.Migrations
                         .HasName("pk_customers");
 
                     b.ToTable("customers", (string)null);
-                });
-
-            modelBuilder.Entity("ShadowGaze.Data.Models.Database.Inbound", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasColumnName("id");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("ApiUri")
-                        .HasColumnType("text")
-                        .HasColumnName("api_uri");
-
-                    b.Property<string>("ConnectionName")
-                        .HasColumnType("text")
-                        .HasColumnName("connection_name");
-
-                    b.Property<string>("ConnectionUri")
-                        .HasColumnType("text")
-                        .HasColumnName("connection_uri");
-
-                    b.Property<string>("Flow")
-                        .HasColumnType("text")
-                        .HasColumnName("flow");
-
-                    b.Property<string>("InboundTag")
-                        .HasColumnType("text")
-                        .HasColumnName("inbound_tag");
-
-                    b.Property<string>("Network")
-                        .HasColumnType("text")
-                        .HasColumnName("network");
-
-                    b.Property<bool>("Obsolete")
-                        .HasColumnType("boolean")
-                        .HasColumnName("obsolete");
-
-                    b.Property<string>("Protocol")
-                        .HasColumnType("text")
-                        .HasColumnName("protocol");
-
-                    b.Property<string>("PublicKey")
-                        .HasColumnType("text")
-                        .HasColumnName("public_key");
-
-                    b.Property<string>("Security")
-                        .HasColumnType("text")
-                        .HasColumnName("security");
-
-                    b.Property<string>("ServerName")
-                        .HasColumnType("text")
-                        .HasColumnName("server_name");
-
-                    b.Property<string>("ShortId")
-                        .HasColumnType("text")
-                        .HasColumnName("short_id");
-
-                    b.HasKey("Id")
-                        .HasName("pk_inbounds");
-
-                    b.ToTable("inbounds", (string)null);
                 });
 
             modelBuilder.Entity("ShadowGaze.Data.Models.Database.Instructions.PlatformInstruction", b =>
@@ -376,6 +364,33 @@ namespace ShadowGaze.Data.Migrations
                     b.ToTable("telegram_files", (string)null);
                 });
 
+            modelBuilder.Entity("ShadowGaze.Data.Models.Database.XrayApi", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("ApiUri")
+                        .HasColumnType("text")
+                        .HasColumnName("api_uri");
+
+                    b.Property<string>("InboundTag")
+                        .HasColumnType("text")
+                        .HasColumnName("inbound_tag");
+
+                    b.Property<bool>("Obsolete")
+                        .HasColumnType("boolean")
+                        .HasColumnName("obsolete");
+
+                    b.HasKey("Id")
+                        .HasName("pk_xray_apis");
+
+                    b.ToTable("xray_apis", (string)null);
+                });
+
             modelBuilder.Entity("ShadowGaze.Data.Models.Database.Connection", b =>
                 {
                     b.HasOne("ShadowGaze.Data.Models.Database.Customer", null)
@@ -385,22 +400,22 @@ namespace ShadowGaze.Data.Migrations
                         .IsRequired()
                         .HasConstraintName("fk_connections_customers_customer_id");
 
-                    b.HasOne("ShadowGaze.Data.Models.Database.Inbound", null)
+                    b.HasOne("ShadowGaze.Data.Models.Database.ConnectionConfiguration", null)
                         .WithOne()
                         .HasForeignKey("ShadowGaze.Data.Models.Database.Connection", "VlessInboundId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
-                        .HasConstraintName("fk_connections_inbounds_vless_inbound_id");
+                        .HasConstraintName("fk_connections_connection_configurations_vless_inbound_id");
                 });
 
             modelBuilder.Entity("ShadowGaze.Data.Models.Database.ConnectionButton", b =>
                 {
-                    b.HasOne("ShadowGaze.Data.Models.Database.Inbound", null)
+                    b.HasOne("ShadowGaze.Data.Models.Database.ConnectionConfiguration", null)
                         .WithOne()
-                        .HasForeignKey("ShadowGaze.Data.Models.Database.ConnectionButton", "InboundId")
+                        .HasForeignKey("ShadowGaze.Data.Models.Database.ConnectionButton", "ConnectionConfigurationId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
-                        .HasConstraintName("fk_connection_buttons_inbounds_inbound_id");
+                        .HasConstraintName("fk_connection_buttons_connection_configurations_connection_con");
                 });
 
             modelBuilder.Entity("ShadowGaze.Data.Models.Database.Instructions.PlatformInstruction", b =>

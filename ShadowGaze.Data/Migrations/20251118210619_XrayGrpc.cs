@@ -56,15 +56,12 @@ namespace ShadowGaze.Data.Migrations
                 defaultValue: new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified));
 
             migrationBuilder.CreateTable(
-                name: "inbounds",
+                name: "connection_configurations",
                 columns: table => new
                 {
                     id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    obsolete = table.Column<bool>(type: "boolean", nullable: false),
-                    api_uri = table.Column<string>(type: "text", nullable: true),
                     connection_uri = table.Column<string>(type: "text", nullable: true),
-                    inbound_tag = table.Column<string>(type: "text", nullable: true),
                     protocol = table.Column<string>(type: "text", nullable: true),
                     flow = table.Column<string>(type: "text", nullable: true),
                     network = table.Column<string>(type: "text", nullable: true),
@@ -76,7 +73,22 @@ namespace ShadowGaze.Data.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("pk_inbounds", x => x.id);
+                    table.PrimaryKey("pk_connection_configurations", x => x.id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "xray_apis",
+                columns: table => new
+                {
+                    id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    obsolete = table.Column<bool>(type: "boolean", nullable: false),
+                    api_uri = table.Column<string>(type: "text", nullable: true),
+                    inbound_tag = table.Column<string>(type: "text", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_xray_apis", x => x.id);
                 });
 
             migrationBuilder.CreateTable(
@@ -86,15 +98,15 @@ namespace ShadowGaze.Data.Migrations
                     id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     button_name = table.Column<string>(type: "text", nullable: true),
-                    inbound_id = table.Column<int>(type: "integer", nullable: false)
+                    connection_configuration_id = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("pk_connection_buttons", x => x.id);
                     table.ForeignKey(
-                        name: "fk_connection_buttons_inbounds_inbound_id",
-                        column: x => x.inbound_id,
-                        principalTable: "inbounds",
+                        name: "fk_connection_buttons_connection_configurations_connection_con",
+                        column: x => x.connection_configuration_id,
+                        principalTable: "connection_configurations",
                         principalColumn: "id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -113,23 +125,23 @@ namespace ShadowGaze.Data.Migrations
                 {
                     table.PrimaryKey("pk_connections", x => x.id);
                     table.ForeignKey(
+                        name: "fk_connections_connection_configurations_vless_inbound_id",
+                        column: x => x.vless_inbound_id,
+                        principalTable: "connection_configurations",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
                         name: "fk_connections_customers_customer_id",
                         column: x => x.customer_id,
                         principalTable: "customers",
                         principalColumn: "id",
                         onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "fk_connections_inbounds_vless_inbound_id",
-                        column: x => x.vless_inbound_id,
-                        principalTable: "inbounds",
-                        principalColumn: "id",
-                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateIndex(
-                name: "ix_connection_buttons_inbound_id",
+                name: "ix_connection_buttons_connection_configuration_id",
                 table: "connection_buttons",
-                column: "inbound_id",
+                column: "connection_configuration_id",
                 unique: true);
 
             migrationBuilder.CreateIndex(
@@ -154,7 +166,10 @@ namespace ShadowGaze.Data.Migrations
                 name: "connections");
 
             migrationBuilder.DropTable(
-                name: "inbounds");
+                name: "xray_apis");
+
+            migrationBuilder.DropTable(
+                name: "connection_configurations");
 
             migrationBuilder.DropColumn(
                 name: "client_id",
