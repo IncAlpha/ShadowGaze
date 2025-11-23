@@ -114,8 +114,8 @@ public sealed class DatabaseContext(DbContextOptions<DatabaseContext> options) :
         
         modelBuilder.Entity<Connection>()
             .HasOne<ConnectionConfiguration>()
-            .WithOne()
-            .HasForeignKey<Connection>(connection => connection.VlessInboundId);
+            .WithMany()
+            .HasForeignKey(connection => connection.ConnectionConfigurationId);
     }
 
     private void ConfigureConnectionButtons(ModelBuilder modelBuilder)

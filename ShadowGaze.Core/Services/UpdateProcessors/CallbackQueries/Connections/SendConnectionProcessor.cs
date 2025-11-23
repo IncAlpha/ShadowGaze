@@ -16,7 +16,8 @@ public abstract class SendConnectionProcessor(
 {
     protected async Task SendMessage(long chatId, ConnectionConfiguration connectionConfiguration, Customer customer)
     {
-        var connection = await connectionsRepository.GetByInboundId(connectionConfiguration.Id) ?? BuildConnection(connectionConfiguration, customer);
+        var connection = await connectionsRepository.GetByCompositeKey(customer.Id, connectionConfiguration.Id) ??
+                         BuildConnection(connectionConfiguration, customer);
         var qrCodeArgs = GetQrCodeMessageArgs(chatId, connection.ConnectionString);
         await Bot.SendPhotoAsync(qrCodeArgs);
         
@@ -45,7 +46,7 @@ public abstract class SendConnectionProcessor(
         return new Connection
         {
             CustomerId = customer.Id,
-            VlessInboundId = connectionConfiguration.Id,
+            ConnectionConfigurationId = connectionConfiguration.Id,
             ConnectionString = BuildConnectionString(customer.ClientId, connectionConfiguration)
         };
     }
