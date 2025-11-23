@@ -40,6 +40,7 @@ public static class ServiceCollectionExtensions
             .AddRepositories()
             .AddHttp()
             .AddGrpc()
+            .AddNotification()
             .AddMiddleware()
             .AddUpdateProcessors();
     }
@@ -92,6 +93,13 @@ public static class ServiceCollectionExtensions
             .AddScoped<XrayService>()
             .AddSingleton<IXrayClientFactory, XrayClientFactory>()
             .AddHostedService<XraySyncService>();
+    }
+
+    private static IServiceCollection AddNotification(this IServiceCollection services)
+    {
+        return services
+            .AddScoped<NotificationService>()
+            .AddHostedService<UserNotificationService>();
     }
 
     private static IServiceCollection AddHttp(this IServiceCollection services)
