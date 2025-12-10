@@ -6,11 +6,7 @@ namespace ShadowGaze.Core.Services.Middlewares;
 
 public class AdminCommandsMiddleware(IConfiguration configuration) : IMiddleware
 {
-    private readonly string[] _adminCommands =
-    [
-        AdminCommandsConstants.AddInstruction,
-        AdminCommandsConstants.File
-    ];
+    private readonly string[] _adminCommands = AdminCommandsConstants.AdminCommands;
 
     /// <summary>
     /// Обработка процесса до передачи к <see cref="BaseUpdateProcessor"/>'у
