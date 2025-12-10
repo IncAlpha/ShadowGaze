@@ -40,7 +40,8 @@ public abstract class BaseMainMenuProcessor(
             await AnswerExistUser(chatId);
             return;
         }
-
+        
+        sessionContext.UpdateState(new IsNewUserContext());
         await AnswerNewUser(chatId);
     }
 

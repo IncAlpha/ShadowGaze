@@ -10,20 +10,18 @@ public class CustomersRepository(DatabaseContext context) : BaseModelRepository<
     public async Task<Customer> GetOrCreateAsync(long id, string username)
     {
         var customer = await DatabaseContext.Customers.FirstOrDefaultAsync(c => c.TelegramId == id);
-        if (customer == null)
+        if (customer != null) return customer;
+        customer = new Customer
         {
-            customer = new Customer
-            {
-                Id = 0,
-                TelegramId = id,
-                TelegramName = username,
-                CreatedAt = DateTime.Now,
-                ExpiryDate = DateTime.Now.AddDays(21).Date,
-                ClientId = Guid.NewGuid()
-            };
-            await DatabaseContext.Customers.AddAsync(customer);
-            await DatabaseContext.SaveChangesAsync();
-        }
+            Id = 0,
+            TelegramId = id,
+            TelegramName = username,
+            CreatedAt = DateTime.Now,
+            ExpiryDate = DateTime.Now.AddDays(21).Date,
+            ClientId = Guid.NewGuid()
+        };
+        await DatabaseContext.Customers.AddAsync(customer);
+        await DatabaseContext.SaveChangesAsync();
         return customer;
     }
     

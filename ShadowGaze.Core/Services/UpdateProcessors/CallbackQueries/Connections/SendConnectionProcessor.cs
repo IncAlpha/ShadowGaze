@@ -14,10 +14,8 @@ public abstract class SendConnectionProcessor(
     PublicBotProperties botProperties
 ) : BaseUpdateProcessor(botProperties)
 {
-    protected async Task SendMessage(long chatId, ConnectionConfiguration connectionConfiguration, Customer customer)
+    protected async Task SendMessage(long chatId, Connection connection)
     {
-        var connection = await connectionsRepository.GetByCompositeKey(customer.Id, connectionConfiguration.Id) ??
-                         BuildConnection(connectionConfiguration, customer);
         var qrCodeArgs = GetQrCodeMessageArgs(chatId, connection.ConnectionString);
         await Bot.SendPhotoAsync(qrCodeArgs);
         
@@ -41,7 +39,7 @@ public abstract class SendConnectionProcessor(
             .Build();
     }
 
-    private Connection BuildConnection(ConnectionConfiguration connectionConfiguration, Customer customer)
+    protected Connection BuildConnection(ConnectionConfiguration connectionConfiguration, Customer customer)
     {
         return new Connection
         {

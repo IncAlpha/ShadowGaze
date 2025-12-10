@@ -33,6 +33,9 @@ public class ConnectionForInboundProcessor(
         var customer = await customersRepository.GetOrCreateAsync(user.Id, username);
         var inbound = await inboundConfigurationRepository.GetByIdAsync(inboundId);
         
-        await SendMessage(chatId, inbound, customer);
+        var connection = await connectionsRepository.GetByCompositeKey(customer.Id, inbound.Id) ??
+                         BuildConnection(inbound, customer);
+        
+        await SendMessage(chatId, connection);
     }
 }

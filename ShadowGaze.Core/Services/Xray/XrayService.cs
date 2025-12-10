@@ -13,20 +13,20 @@ public class XrayService(
     XrayApiRepository xrayApiRepository,
     CustomersRepository customersRepository)
 {
-    public async Task AddUser(Customer user)
+    public async Task AddUserAsync(Customer user)
     {
         var apis = await xrayApiRepository
             .AsQueryable()
             .Where(i => i.Obsolete == false)
             .ToListAsync();
         
-        var syncTasks = apis.Select(api => AddUserAsync(user, api))
+        var syncTasks = apis.Select(api => AddUserForXrayAsync(user, api))
             .ToArray();
         await Task.WhenAll(syncTasks);
-        logger.LogInformation("Xrays synchronized ");
+        logger.LogInformation($"Added user {user.TelegramName}");
     }
 
-    private async Task AddUserAsync(Customer user, XrayApi xrayApi)
+    private async Task AddUserForXrayAsync(Customer user, XrayApi xrayApi)
     {
         var client = xrayClientFactory.GetClient(new Uri($"{xrayApi.ApiUri}"));
         var message = new GetInboundUsersMessage(xrayApi.InboundTag);
@@ -67,26 +67,25 @@ public class XrayService(
         using var timeoutSource = new CancellationTokenSource(TimeSpan.FromSeconds(5));
         var remoteEndpoint = await client.GetData(message, timeoutSource.Token);
         
-        // список подключений на пользователей
         var toAdd = localUsers
             .Where(l => remoteEndpoint.All(r => r.Id != l.ClientId))
             .ToList();
         var toRemove = remoteEndpoint
             .Where(r => localUsers.All(l => l.ClientId != r.Id))
             .ToList();
+        
+        foreach (var item in toRemove)
+        {
+            var deleteUser = new RemoveUserMessage(xrayApi.InboundTag, item.Email);
+            await client.SendMessage(deleteUser, timeoutSource.Token);
+            logger.LogInformation($"Remove X-ray user {item.Email} at {xrayApi.ApiUri}");
+        }
 
         foreach (var item in toAdd)
         {
             var addUser = new AddUserMessage(xrayApi.InboundTag, item.TelegramName, item.ClientId);
             await client.SendMessage(addUser, timeoutSource.Token);
             logger.LogInformation($"Adding X-ray user {item.TelegramName} at {xrayApi.ApiUri}");
-        }
-
-        foreach (var item in toRemove)
-        {
-            // var deleteUser = new RemoveUserMessage(inboundTag, item.Email);
-            // await client.SendMessage(deleteUser);
-            logger.LogInformation($"Remove X-ray user {item.Email} at {xrayApi.ApiUri}");
         }
     }
 }
