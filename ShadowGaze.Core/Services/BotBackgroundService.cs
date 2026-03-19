@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using System.Net.Sockets;
 using ShadowGaze.Core.Models;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -12,6 +13,7 @@ namespace ShadowGaze.Core.Services;
 
 public class BotBackgroundService : BackgroundService
 {
+    private static readonly TimeSpan RetryDelay = TimeSpan.FromSeconds(5);
     private readonly ILogger _logger;
     private readonly IServiceProvider _serviceProvider;
     private readonly IVersionProvider _versionProvider;
@@ -38,42 +40,71 @@ public class BotBackgroundService : BackgroundService
         {
             await databaseContext.Database.MigrateAsync(cancellationToken: stoppingToken);
         }
+
         _logger.LogInformation($"Запуск бота [{_versionProvider.FileVersionInfo.FileVersion}]");
-        var updates = (await _bot
-                .GetUpdatesAsync(cancellationToken: stoppingToken)
-                .ConfigureAwait(false))
-            .ToArray();
-        
+        int? offset = null;
+
         while (!stoppingToken.IsCancellationRequested)
         {
-            if (updates.Length != 0)
+            try
             {
-                try // todo 
-                    // If an error occurs while processing the callback,
-                    // the telegram api can send the callback again and throw an exception when trying to process it
-                    // Use webhook
+                var updates = offset.HasValue
+                    ? (await _bot.GetUpdatesAsync(offset.Value, cancellationToken: stoppingToken).ConfigureAwait(false))
+                        .ToArray()
+                    : (await _bot.GetUpdatesAsync(cancellationToken: stoppingToken).ConfigureAwait(false)).ToArray();
+
+                if (updates.Length == 0)
                 {
-                    _ = Parallel.ForEachAsync(updates, stoppingToken,
-                        async (update, token) => await ProcessUpdate(update, token));
-                }
-                catch (BotRequestException exception)
-                {
-                    _logger.LogError(exception.Message);
-                }
-                catch (Exception exception)
-                {
-                    _logger.LogError(exception.Message);
+                    continue;
                 }
 
+                await Parallel.ForEachAsync(
+                    updates,
+                    stoppingToken,
+                    async (update, token) =>
+                    {
+                        try
+                        {
+                            await ProcessUpdate(update, token).ConfigureAwait(false);
+                        }
+                        catch (Exception ex)
+                        {
+                            _logger.LogError(ex, "Ошибка обработки update {UpdateId}", update.UpdateId);
+                        }
+                    });
 
-                updates = (await _bot.GetUpdatesAsync(updates[^1].UpdateId + 1, cancellationToken: stoppingToken)
-                        .ConfigureAwait(false))
-                    .ToArray();
+                offset = updates[^1].UpdateId + 1;
             }
-            else
+            catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
             {
-                updates = (await _bot.GetUpdatesAsync(cancellationToken: stoppingToken).ConfigureAwait(false))
-                    .ToArray();
+                break;
+            }
+            catch (HttpRequestException exception)
+            {
+                _logger.LogWarning(exception, "Ошибка сети при получении updates от Telegram, повтор через {DelaySec} сек", RetryDelay.TotalSeconds);
+                await Task.Delay(RetryDelay, stoppingToken);
+            }
+            catch (SocketException exception)
+            {
+                _logger.LogWarning(exception, "Сокетная ошибка при работе с Telegram API, повтор через {DelaySec} сек", RetryDelay.TotalSeconds);
+                await Task.Delay(RetryDelay, stoppingToken);
+            }
+            catch (BotRequestException exception)
+            {
+                _logger.LogError(exception, "Ошибка Telegram API");
+                await Task.Delay(RetryDelay, stoppingToken);
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError(exception, "Неожиданная ошибка в цикле обработки обновлений, повтор через {DelaySec} сек", RetryDelay.TotalSeconds);
+                try
+                {
+                    await Task.Delay(RetryDelay, stoppingToken);
+                }
+                catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
+                {
+                    break;
+                }
             }
         }
     }
