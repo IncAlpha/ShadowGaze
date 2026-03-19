@@ -41,11 +41,13 @@ ssh -t user@your-server "sudo /tmp/shadowgaze-deploy/bootstrap_server.sh"
   - `/opt/shadowgaze/releases`
   - `/opt/shadowgaze/shared`
 - создает `/opt/shadowgaze/shared/secret.json` (шаблон, если файла нет);
+- создает `/opt/shadowgaze/shared/appsettings.json` (шаблон, если файла нет);
 - устанавливает `systemd` unit `/etc/systemd/system/shadowgaze.service`;
 - выполняет `systemctl daemon-reload` и `systemctl enable`.
 
-После bootstrap обязательно проверьте токен в:
+После bootstrap обязательно проверьте конфиг в:
 - `/opt/shadowgaze/shared/secret.json`
+- `/opt/shadowgaze/shared/appsettings.json`
 
 ### 3) Деплой одной командой
 
@@ -62,6 +64,7 @@ ssh -t user@your-server "sudo /tmp/shadowgaze-deploy/bootstrap_server.sh"
 4. На сервере:
    - распаковывает в `/opt/shadowgaze/releases/<timestamp>`;
    - подключает `/opt/shadowgaze/shared/secret.json`;
+   - подключает `/opt/shadowgaze/shared/appsettings.json`;
    - переключает симлинк `/opt/shadowgaze/current`;
    - перезапускает `shadowgaze.service`.
 

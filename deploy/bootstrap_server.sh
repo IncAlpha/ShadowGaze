@@ -87,6 +87,18 @@ EOF
   chmod 600 "$APP_DIR/shared/secret.json"
 fi
 
+if [[ ! -f "$APP_DIR/shared/appsettings.json" ]]; then
+  cat >"$APP_DIR/shared/appsettings.json" <<'EOF'
+{
+  "ConnectionStrings": {
+    "DefaultConnection": "PUT_PRODUCTION_CONNECTION_STRING_HERE"
+  }
+}
+EOF
+  chown "$APP_USER:$APP_GROUP" "$APP_DIR/shared/appsettings.json"
+  chmod 600 "$APP_DIR/shared/appsettings.json"
+fi
+
 SERVICE_FILE="/etc/systemd/system/$SERVICE_NAME"
 sed \
   -e "s|__APP_USER__|$APP_USER|g" \
@@ -100,4 +112,5 @@ systemctl enable "$SERVICE_NAME"
 
 echo "Server bootstrap complete."
 echo "1) Verify/replace token in: $APP_DIR/shared/secret.json"
-echo "2) Deploy from local machine: ./deploy/deploy.sh <user@host> --service $SERVICE_NAME --app-dir $APP_DIR --app-user $APP_USER"
+echo "2) Verify/replace app settings in: $APP_DIR/shared/appsettings.json"
+echo "3) Deploy from local machine: ./deploy/deploy.sh <user@host> --service $SERVICE_NAME --app-dir $APP_DIR --app-user $APP_USER"

@@ -101,8 +101,15 @@ if ! run_root test -f "$SHARED_DIR/secret.json"; then
   exit 1
 fi
 
-echo "Linking shared secret.json..."
+if ! run_root test -f "$SHARED_DIR/appsettings.json"; then
+  echo "Missing $SHARED_DIR/appsettings.json" >&2
+  echo "Create it before deployment." >&2
+  exit 1
+fi
+
+echo "Linking shared configuration files..."
 run_root ln -sfn "$SHARED_DIR/secret.json" "$RELEASE_DIR/secret.json"
+run_root ln -sfn "$SHARED_DIR/appsettings.json" "$RELEASE_DIR/appsettings.json"
 
 echo "Switching current release..."
 run_root ln -sfn "$RELEASE_DIR" "$CURRENT_LINK"

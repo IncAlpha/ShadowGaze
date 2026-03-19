@@ -73,8 +73,9 @@ mkdir -p "$PUBLISH_DIR" "$OUTPUT_DIR"
 echo "Publishing $PROJECT_PATH ($CONFIGURATION)..."
 dotnet publish "$PROJECT_ABS" -c "$CONFIGURATION" -o "$PUBLISH_DIR"
 
-# Server secret is managed in /opt/shadowgaze/shared/secret.json.
+# Server configuration files are managed in /opt/shadowgaze/shared.
 rm -f "$PUBLISH_DIR/secret.json"
+rm -f "$PUBLISH_DIR/appsettings.json"
 
 if git -C "$ROOT_DIR" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
   GIT_SHA="$(git -C "$ROOT_DIR" rev-parse --short HEAD)"
