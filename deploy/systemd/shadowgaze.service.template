@@ -1,0 +1,16 @@
+[Unit]
+Description=ShadowGaze Telegram Bot
+After=network.target
+
+[Service]
+Type=simple
+User=__APP_USER__
+Group=__APP_GROUP__
+WorkingDirectory=__APP_DIR__/current
+ExecStart=__DOTNET_CMD__ __APP_DIR__/current/ShadowGaze.dll
+Restart=always
+RestartSec=5
+Environment=DOTNET_ENVIRONMENT=Production
+
+[Install]
+WantedBy=multi-user.target
