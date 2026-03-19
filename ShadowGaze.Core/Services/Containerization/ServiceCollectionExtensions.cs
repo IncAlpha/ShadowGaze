@@ -14,6 +14,7 @@ using ShadowGaze.Core.Services.UpdateProcessors.CallbackQueries.Instructions;
 using ShadowGaze.Core.Services.UpdateProcessors.CallbackQueries.PromotionalCodes;
 using ShadowGaze.Core.Services.UpdateProcessors.CallbackQueries.Subscriptions;
 using ShadowGaze.Core.Services.UpdateProcessors.Messages.AdminCommands.AddPlatformInstruction;
+using ShadowGaze.Core.Services.UpdateProcessors.Messages.AdminCommands.ConnectionConfigurations;
 using ShadowGaze.Core.Services.UpdateProcessors.Messages.AdminCommands.GetFileId;
 using ShadowGaze.Core.Services.UpdateProcessors.Messages.AdminCommands.XrayCore;
 using ShadowGaze.Core.Services.UpdateProcessors.Messages.MainMenu;
@@ -75,6 +76,13 @@ public static class ServiceCollectionExtensions
             // fileId
             .AddScoped<BaseUpdateProcessor, FileProcessor>()
             .AddScoped<BaseUpdateProcessor, MediaProcessor>()
+
+            // connection configuration
+            .AddScoped<BaseUpdateProcessor, ConnectionConfigurationsCommandProcessor>()
+            .AddScoped<BaseUpdateProcessor, SelectConnectionConfigurationProcessor>()
+            .AddScoped<BaseUpdateProcessor, ReplaceServerNameProcessor>()
+            .AddScoped<BaseUpdateProcessor, SetServerNameProcessor>()
+            .AddScoped<BaseUpdateProcessor, ClearConnectionsProcessor>()
 
             // управление
             .AddScoped<BaseUpdateProcessor, SyncXrayProcessor>();

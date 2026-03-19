@@ -13,5 +13,11 @@ public class ConnectionsRepository(DatabaseContext context) : BaseModelRepositor
             model.CustomerId == customerId && 
             model.ConnectionConfigurationId == configurationId);
     }
-    
+
+    public async Task<int> DeleteByConfigurationIdAsync(int configurationId)
+    {
+        return await Table
+            .Where(model => model.ConnectionConfigurationId == configurationId)
+            .ExecuteDeleteAsync();
+    }
 }

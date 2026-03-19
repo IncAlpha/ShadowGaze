@@ -11,6 +11,7 @@ public static class CallbackQueriesConstants
     public const string PromotionalCodes = "promotionalcode";
     public const string ConnectionsList = "connectionslist";
     public const string ConnectionForInbound = "connectionforinbound";
+    public const string ConnectionConfigurations = "connectionconfigurations";
     
     public const string AboutAs = "about";
     public const string Referrals = "referrals";

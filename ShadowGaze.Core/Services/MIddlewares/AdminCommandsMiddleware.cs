@@ -9,7 +9,8 @@ public class AdminCommandsMiddleware(IConfiguration configuration) : IMiddleware
     private readonly string[] _adminCommands =
     [
         AdminCommandsConstants.AddInstruction,
-        AdminCommandsConstants.File
+        AdminCommandsConstants.File,
+        AdminCommandsConstants.ConnectionConfiguration
     ];
 
     /// <summary>
@@ -19,14 +20,19 @@ public class AdminCommandsMiddleware(IConfiguration configuration) : IMiddleware
     /// <returns></returns>
     public async Task<bool> Process(Update update)
     {
+        var admins = configuration.GetSection("secret:admins").Get<long[]>();
+
+        if (update.CallbackQuery?.Data?.StartsWith($"{CallbackQueriesConstants.ConnectionConfigurations};") ?? false)
+        {
+            return admins.Contains(update.CallbackQuery.From.Id);
+        }
+
         if (update.Message == null)
         {
             return true;
         }
 
         var message = update.Message!;
-
-        var admins = configuration.GetSection("secret:admins").Get<long[]>();
         var sender = message.From!;
 
         if (!_adminCommands.Contains(update.Message.Text))
